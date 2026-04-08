@@ -1,0 +1,123 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* Root variables per backward compatibility */
+:root {
+  --g: #53FC18;
+  --g-dim: rgba(83, 252, 24, 0.1);
+  --g-border: rgba(83, 252, 24, 0.2);
+  --g-glow: rgba(83, 252, 24, 0.25);
+  --bg: #0a0a0a;
+  --s1: #111111;
+  --s2: #161616;
+  --s3: #1e1e1e;
+  --s4: #252525;
+  --border: rgba(255, 255, 255, 0.07);
+  --border2: rgba(255, 255, 255, 0.11);
+  --txt: #f2f2f2;
+  --muted: rgba(242, 242, 242, 0.38);
+  --muted2: rgba(242, 242, 242, 0.6);
+  --danger: #ff4757;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-surface text-text;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-surface;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-surface-4 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-surface-3;
+}
+
+/* Selection */
+::selection {
+  @apply bg-brand-600 text-black;
+}
+
+/* Transitions */
+@layer utilities {
+  .transition-smooth {
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .glass-effect {
+    @apply bg-opacity-90 backdrop-blur-md saturate-150;
+  }
+
+  .card {
+    @apply bg-surface-1 border border-border rounded-lg;
+  }
+
+  .card-interactive {
+    @apply card hover:border-brand-600 hover:bg-surface-2 transition-smooth cursor-pointer;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-1 rounded text-xs font-semibold;
+  }
+
+  .badge-success {
+    @apply badge bg-green-500/20 text-green-400;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-500/20 text-yellow-400;
+  }
+
+  .badge-danger {
+    @apply badge bg-red-500/20 text-red-400;
+  }
+
+  .badge-info {
+    @apply badge bg-blue-500/20 text-blue-400;
+  }
+
+  .input-base {
+    @apply bg-surface-2 border border-border rounded-md px-3 py-2 text-text placeholder:text-text-muted focus:outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/50 transition-smooth;
+  }
+
+  .button-primary {
+    @apply bg-brand-600 text-black font-semibold px-4 py-2 rounded-md hover:bg-brand-500 transition-smooth disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .button-secondary {
+    @apply bg-surface-2 text-text border border-border px-4 py-2 rounded-md hover:border-brand-600 hover:text-brand-600 transition-smooth disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .button-ghost {
+    @apply text-text hover:text-brand-600 hover:bg-surface-2 px-3 py-2 rounded-md transition-smooth disabled:opacity-50;
+  }
+
+  .text-sm-muted {
+    @apply text-sm text-text-muted;
+  }
+
+  .text-xs-muted {
+    @apply text-xs text-text-muted;
+  }
+}

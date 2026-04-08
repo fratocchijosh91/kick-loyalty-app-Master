@@ -1,0 +1,728 @@
+/* ==================== REDEMPTION REQUEST FORM ==================== */
+
+.redemption-form-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.redemption-form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.redemption-form-header .icon-large {
+  width: 64px;
+  height: 64px;
+  color: #6366f1;
+  margin-bottom: 1rem;
+}
+
+.redemption-form-header h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+}
+
+.redemption-form-header p {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+/* ==================== ALERTS ==================== */
+
+.redemption-alert {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.error-alert {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.success-alert {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.warning-alert {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+/* ==================== REWARDS GRID ==================== */
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.reward-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reward-card:hover {
+  border-color: #6366f1;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+}
+
+.reward-card.selected {
+  border-color: #6366f1;
+  background-color: #f0f4ff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.reward-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.reward-card-header h3 {
+  font-size: 1.1rem;
+  color: #1f2937;
+  margin: 0;
+  flex: 1;
+}
+
+.reward-icon {
+  font-size: 1.5rem;
+}
+
+.reward-description {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.reward-cost {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f3f4f6;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.cost-label {
+  color: #6b7280;
+}
+
+.cost-value {
+  color: #6366f1;
+  font-size: 1.2rem;
+}
+
+.reward-stock {
+  background-color: #f0fdf4;
+  color: #166534;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* ==================== FORM DETAILS ==================== */
+
+.redemption-form-details {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.redemption-form-details h3 {
+  margin-top: 0;
+  color: #1f2937;
+}
+
+/* ==================== FORM GROUPS ==================== */
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.quantity-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+}
+
+.quantity-input button {
+  background: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6366f1;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.quantity-input button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.quantity-input button:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.quantity-input input {
+  flex: 1;
+  border: none;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+  width: 60px;
+}
+
+/* ==================== FORM SUMMARY ==================== */
+
+.form-summary {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-row.total {
+  font-weight: 600;
+  color: #1f2937;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-top: 2px solid #e5e7eb;
+  border-bottom: none !important;
+}
+
+.summary-row strong {
+  color: #1f2937;
+}
+
+.summary-row .success {
+  color: #15803d;
+}
+
+.summary-row .error {
+  color: #dc2626;
+}
+
+/* ==================== BUTTONS ==================== */
+
+.btn-primary {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  background-color: #e5e7eb;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-small:hover {
+  background-color: #d1d5db;
+}
+
+/* ==================== LOADING & EMPTY ==================== */
+
+.redemption-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.no-rewards {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+}
+
+/* ==================== REDEMPTION HISTORY ==================== */
+
+.redemption-history-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.redemption-history-header {
+  margin-bottom: 2rem;
+}
+
+.redemption-history-header h2 {
+  font-size: 2rem;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.redemption-history-header p {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ==================== HISTORY TABS ==================== */
+
+.history-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #6b7280;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tab-button:hover {
+  color: #374151;
+}
+
+.tab-button.active {
+  color: #6366f1;
+  border-bottom-color: #6366f1;
+}
+
+.tab-count {
+  background-color: #6366f1;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+  font-weight: 600;
+}
+
+.tab-button.active .tab-count {
+  background-color: #6366f1;
+}
+
+/* ==================== EMPTY STATE ==================== */
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #9ca3af;
+}
+
+.empty-state svg {
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+/* ==================== TABLE ==================== */
+
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.redemption-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.redemption-table thead {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.redemption-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.redemption-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.redemption-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.redemption-table td {
+  padding: 1rem;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.reward-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.points-value,
+.date-value {
+  font-variant-numeric: tabular-nums;
+  font-family: 'Courier New', monospace;
+}
+
+.points-value {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+/* ==================== DETAIL ROW ==================== */
+
+.detail-row {
+  background-color: #f9fafb;
+}
+
+.detail-row td {
+  padding: 0;
+}
+
+.redemption-details {
+  padding: 1.5rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-item {
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.detail-item label {
+  display: block;
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.detail-item p,
+.detail-item code {
+  margin: 0;
+  color: #1f2937;
+  word-break: break-all;
+}
+
+.detail-item code {
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+}
+
+.detail-item.rejection {
+  border-left: 4px solid #dc2626;
+  background-color: #fef2f2;
+}
+
+.fulfillment-info {
+  background-color: #f3f4f6;
+  padding: 0.75rem;
+  border-radius: 0.4rem;
+}
+
+.fulfillment-info p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.fulfillment-info .link {
+  color: #6366f1;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.fulfillment-info .link:hover {
+  text-decoration: underline;
+}
+
+/* ==================== ACTIVITY LOG ==================== */
+
+.activity-log {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  grid-column: 1 / -1;
+}
+
+.activity-log h4 {
+  margin: 0 0 1rem 0;
+  color: #1f2937;
+}
+
+.activity-log ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity-log li {
+  padding: 0.75rem;
+  border-left: 3px solid #e5e7eb;
+  background-color: #f9fafb;
+  margin-bottom: 0.5rem;
+  border-radius: 0.25rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.activity-action {
+  font-weight: 600;
+  color: #6366f1;
+  padding: 0.25rem 0.5rem;
+  background-color: #f0f4ff;
+  border-radius: 0.25rem;
+}
+
+.activity-by,
+.activity-time {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.activity-time {
+  font-family: 'Courier New', monospace;
+}
+
+.activity-notes {
+  color: #9ca3af;
+  font-style: italic;
+  flex: 1;
+}
+
+/* ==================== BADGES ==================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-success {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.badge-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-info {
+  background-color: #dbeafe;
+  color: #0c4a6e;
+}
+
+.badge-secondary {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ==================== PAGINATION ==================== */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.btn-pagination {
+  padding: 0.5rem 1rem;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-pagination:hover:not(:disabled) {
+  background-color: #6366f1;
+  color: white;
+  border-color: #6366f1;
+}
+
+.btn-pagination:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+  background-color: #f3f4f6;
+}
+
+.pagination-info {
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .redemption-form-container,
+  .redemption-history-container {
+    padding: 1rem;
+  }
+
+  .rewards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .redemption-table {
+    font-size: 0.85rem;
+  }
+
+  .redemption-table th,
+  .redemption-table td {
+    padding: 0.75rem;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-tabs {
+    gap: 0.5rem;
+  }
+
+  .tab-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btn-pagination {
+    width: 100%;
+  }
+}

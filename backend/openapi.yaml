@@ -1,0 +1,816 @@
+openapi: 3.0.0
+info:
+  title: Kick Loyalty SaaS API
+  version: 1.0.0
+  description: |
+    API REST per il sistema multi-tenant Kick Loyalty.
+    
+    **Autenticazione:**
+    Tutte le richieste (eccetto login) richiedono un JWT Bearer token nell'header Authorization.
+    
+    ```
+    Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    ```
+    
+    **Rate Limiting:**
+    - Free: 1,000 calls/mese
+    - Pro: 10,000 calls/mese
+    - Business: 100,000 calls/mese
+    - Enterprise: Unlimited
+  contact:
+    name: Kick Loyalty Support
+    email: support@kickloyalty.com
+  license:
+    name: Proprietary
+    url: https://kickloyalty.com/license
+
+servers:
+  - url: https://api.kickloyalty.com/api
+    description: Production
+  - url: http://localhost:5000/api
+    description: Development
+
+tags:
+  - name: Authentication
+    description: Login e gestione sessioni
+  - name: Organizations
+    description: Gestione organizzazioni multi-tenant
+  - name: Team
+    description: Gestione team members e inviti
+  - name: Billing
+    description: Subscription e pagamenti
+  - name: Rewards
+    description: Gestione card rewards
+  - name: Points
+    description: Gestione viewer points
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token da header Authorization
+
+  schemas:
+    Organization:
+      type: object
+      required:
+        - id
+        - slug
+        - name
+        - owner
+      properties:
+        id:
+          type: string
+          format: MongoDB ObjectId
+        slug:
+          type: string
+          description: URL-friendly identifier
+          example: my-community
+        name:
+          type: string
+          example: My Gaming Community
+        description:
+          type: string
+          example: A community for gamers
+        contactEmail:
+          type: string
+          format: email
+        webhookUrl:
+          type: string
+          format: uri
+        owner:
+          type: string
+          format: MongoDB ObjectId
+          description: User ID dell'owner
+        subscription:
+          $ref: '#/components/schemas/Subscription'
+        usageQuota:
+          $ref: '#/components/schemas/UsageQuota'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Subscription:
+      type: object
+      properties:
+        planSlug:
+          type: string
+          enum: [free, pro, business, enterprise]
+        status:
+          type: string
+          enum: [active, canceled, past_due]
+        stripeCustomerId:
+          type: string
+        renewalDate:
+          type: string
+          format: date-time
+        canceledAt:
+          type: string
+          format: date-time
+
+    UsageQuota:
+      type: object
+      properties:
+        apiCalls:
+          type: integer
+          example: 500
+        teamMembers:
+          type: integer
+          example: 3
+        rewards:
+          type: integer
+          example: 5
+
+    SubscriptionPlan:
+      type: object
+      required:
+        - slug
+        - name
+        - price
+        - quotas
+      properties:
+        slug:
+          type: string
+          enum: [free, pro, business, enterprise]
+        name:
+          type: string
+          example: Pro
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+          example: 29.00
+        currency:
+          type: string
+          default: EUR
+        quotas:
+          type: object
+          properties:
+            maxRewards:
+              type: integer
+            maxTeamMembers:
+              type: integer
+            maxApiCallsPerMonth:
+              type: integer
+            webhookIntegrations:
+              type: boolean
+            advancedAnalytics:
+              type: boolean
+            prioritySupport:
+              type: boolean
+
+    TeamMember:
+      type: object
+      required:
+        - id
+        - userId
+        - organizationId
+        - role
+      properties:
+        id:
+          type: string
+          format: MongoDB ObjectId
+        userId:
+          type: string
+          format: MongoDB ObjectId
+        organizationId:
+          type: string
+          format: MongoDB ObjectId
+        role:
+          type: string
+          enum: [owner, admin, editor, viewer]
+          description: |
+            - owner: Full access, può eliminare org
+            - admin: Gestisce team e billing
+            - editor: Gestisce rewards e points
+            - viewer: Read-only access
+        joinedAt:
+          type: string
+          format: date-time
+
+    Reward:
+      type: object
+      required:
+        - id
+        - organizationId
+        - name
+        - points
+      properties:
+        id:
+          type: string
+          format: MongoDB ObjectId
+        organizationId:
+          type: string
+          format: MongoDB ObjectId
+        name:
+          type: string
+          example: Custom Emote
+        description:
+          type: string
+        points:
+          type: integer
+          example: 1000
+        type:
+          type: string
+          enum: [emote, shoutout, badge, custom]
+        image:
+          type: string
+          format: uri
+        active:
+          type: boolean
+          default: true
+        createdAt:
+          type: string
+          format: date-time
+
+    ViewerPoints:
+      type: object
+      required:
+        - id
+        - organizationId
+        - viewerId
+        - points
+      properties:
+        id:
+          type: string
+          format: MongoDB ObjectId
+        organizationId:
+          type: string
+          format: MongoDB ObjectId
+        viewerId:
+          type: string
+          example: viewer_kick_username
+        points:
+          type: integer
+          example: 5000
+        redeemedRewards:
+          type: array
+          items:
+            type: string
+            format: MongoDB ObjectId
+        lastRedeemDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+        details:
+          type: object
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login con Kick OAuth
+      operationId: loginKickOAuth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - state
+              properties:
+                code:
+                  type: string
+                  description: Authorization code da OAuth flow
+                state:
+                  type: string
+                  description: State parameter anticsrf
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      username:
+                        type: string
+                      email:
+                        type: string
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /organizations:
+    post:
+      tags:
+        - Organizations
+      summary: Crea nuova organizzazione
+      operationId: createOrganization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - slug
+              properties:
+                name:
+                  type: string
+                  example: My Community
+                slug:
+                  type: string
+                  pattern: '^[a-z0-9-]+$'
+                  example: my-community
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Organization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - Organizations
+      summary: Lista le tue organizzazioni
+      operationId: listOrganizations
+      responses:
+        '200':
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Organization'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /organizations/{slug}:
+    get:
+      tags:
+        - Organizations
+      summary: Dettagli organizzazione
+      operationId: getOrganization
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          example: my-community
+      responses:
+        '200':
+          description: Organization details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '404':
+          description: Organization not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      tags:
+        - Organizations
+      summary: Aggiorna organizzazione
+      operationId: updateOrganization
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                contactEmail:
+                  type: string
+                webhookUrl:
+                  type: string
+      responses:
+        '200':
+          description: Organization updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /organizations/{slug}/team:
+    get:
+      tags:
+        - Team
+      summary: Lista team members
+      operationId: listTeamMembers
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Team members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamMember'
+
+  /organizations/{slug}/team/invite:
+    post:
+      tags:
+        - Team
+      summary: Invita membro al team
+      operationId: inviteTeamMember
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - role
+              properties:
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [admin, editor, viewer]
+      responses:
+        '201':
+          description: Invitation sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  inviteToken:
+                    type: string
+        '403':
+          description: Not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /organizations/{slug}/team/{memberId}:
+    patch:
+      tags:
+        - Team
+      summary: Aggiorna ruolo membro
+      operationId: updateTeamMember
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: memberId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [admin, editor, viewer]
+      responses:
+        '200':
+          description: Member updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+
+    delete:
+      tags:
+        - Team
+      summary: Rimuovi membro dal team
+      operationId: removeTeamMember
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: memberId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Member removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /organizations/{slug}/billing:
+    get:
+      tags:
+        - Billing
+      summary: Info billing corrente
+      operationId: getBillingInfo
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Billing information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentPlan:
+                    $ref: '#/components/schemas/SubscriptionPlan'
+                  subscription:
+                    $ref: '#/components/schemas/Subscription'
+                  availablePlans:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SubscriptionPlan'
+                  usage:
+                    $ref: '#/components/schemas/UsageQuota'
+
+  /organizations/{slug}/billing/upgrade:
+    post:
+      tags:
+        - Billing
+      summary: Upgrade subscription
+      operationId: upgradePlan
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - planSlug
+              properties:
+                planSlug:
+                  type: string
+                  enum: [free, pro, business, enterprise]
+      responses:
+        '200':
+          description: Upgrade initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionUrl:
+                    type: string
+                    format: uri
+                    description: Stripe checkout URL
+                  message:
+                    type: string
+
+  /organizations/{slug}/billing/cancel:
+    post:
+      tags:
+        - Billing
+      summary: Cancella subscription
+      operationId: cancelSubscription
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Subscription canceled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  downgradeDate:
+                    type: string
+                    format: date-time
+
+  /organizations/{slug}/rewards:
+    get:
+      tags:
+        - Rewards
+      summary: Lista rewards
+      operationId: listRewards
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of rewards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reward'
+
+    post:
+      tags:
+        - Rewards
+      summary: Crea nuovo reward
+      operationId: createReward
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - points
+                - type
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                points:
+                  type: integer
+                  minimum: 1
+                type:
+                  type: string
+                  enum: [emote, shoutout, badge, custom]
+                image:
+                  type: string
+                  format: uri
+      responses:
+        '201':
+          description: Reward created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reward'
+        '400':
+          description: Invalid input or quota exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /viewer-points/{organizationId}/{viewerId}:
+    get:
+      tags:
+        - Points
+      summary: Ottieni punti viewer
+      operationId: getViewerPoints
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: viewerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Viewer points
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewerPoints'
+
+    patch:
+      tags:
+        - Points
+      summary: Aggiorna punti viewer
+      operationId: updateViewerPoints
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: viewerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                points:
+                  type: integer
+                  description: Numero punti da aggiungere
+      responses:
+        '200':
+          description: Points updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewerPoints'

@@ -1,0 +1,709 @@
+/* ==================== SMS SETTINGS PANEL ==================== */
+
+.sms-settings-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.sms-settings-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.sms-settings-header .icon-large {
+  width: 64px;
+  height: 64px;
+  color: #6366f1;
+  margin-bottom: 1rem;
+}
+
+.sms-settings-header h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+}
+
+.sms-settings-header p {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+/* ==================== ALERTS ==================== */
+
+.sms-alert {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.error-alert {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.success-alert {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+/* ==================== SETTINGS CONTENT ==================== */
+
+.sms-settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sms-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.badge-verified {
+  background-color: #dcfce7;
+  color: #15803d;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ==================== PHONE VERIFICATION ==================== */
+
+.verify-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-group small {
+  display: block;
+  margin-top: 0.4rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.verification-info {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  color: #374151;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.verification-confirmed {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 0.75rem;
+  border: 1px solid #86efac;
+}
+
+.confirmed-info {
+  margin-bottom: 1.5rem;
+}
+
+.success-icon {
+  color: #15803d;
+  margin-bottom: 0.5rem;
+}
+
+.confirmed-info p {
+  margin: 0.5rem 0;
+  color: #374151;
+}
+
+.phone-display {
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  color: #1f2937;
+  font-size: 1.1rem;
+}
+
+/* ==================== NOTIFICATION PREFERENCES ==================== */
+
+.preferences-form {
+  margin-bottom: 0;
+}
+
+.notification-group {
+  margin-bottom: 1.5rem;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.checkbox-item:hover {
+  background-color: #f3f4f6;
+  border-color: #6366f1;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 0.2rem;
+  cursor: pointer;
+  accent-color: #6366f1;
+}
+
+.checkbox-item span {
+  display: block;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.checkbox-item small {
+  display: block;
+  color: #6b7280;
+  font-weight: normal;
+  margin-top: 0.25rem;
+}
+
+/* ==================== RATE LIMITS ==================== */
+
+.limits-form {
+  margin-bottom: 0;
+}
+
+.limit-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.limit-group label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.limit-group label input {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.limit-group small {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+/* ==================== INFO CARD ==================== */
+
+.info-card {
+  background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+  border: 1px solid #f59e0b;
+}
+
+.info-card h4 {
+  margin-top: 0;
+  color: #92400e;
+}
+
+.info-card ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #92400e;
+}
+
+.info-card li {
+  margin-bottom: 0.5rem;
+}
+
+/* ==================== SMS EDITOR ==================== */
+
+.sms-editor-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.sms-editor-header {
+  margin-bottom: 2rem;
+}
+
+.sms-editor-header h2 {
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+}
+
+.sms-editor-header p {
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
+.sms-editor-header .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ==================== TEMPLATES GRID ==================== */
+
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.template-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.template-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #6366f1;
+}
+
+.template-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.template-header h4 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.template-type {
+  display: inline-block;
+  background-color: #f0f4ff;
+  color: #6366f1;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.template-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid #e5e7eb;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #6b7280;
+}
+
+.btn-icon:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  background-color: #f0f4ff;
+}
+
+.btn-icon.delete:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+  background-color: #fee2e2;
+}
+
+.template-body {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.template-message {
+  margin: 0;
+  color: #374151;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  background-color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-family: 'Courier New', monospace;
+}
+
+.template-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.85rem;
+  color: #6b7280;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.char-count {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.auto-send-badge {
+  background-color: #dbeafe;
+  color: #0c4a6e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
+.usage-count {
+  margin-left: auto;
+}
+
+.template-variables {
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 0.75rem;
+}
+
+.template-variables small {
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #9ca3af;
+  grid-column: 1 / -1;
+}
+
+/* ==================== MODAL ==================== */
+
+.sms-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.sms-modal-content {
+  background: white;
+  border-radius: 0.75rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: #1f2937;
+}
+
+.template-form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.variables-hint {
+  background-color: #f0f4ff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #dbeafe;
+}
+
+.variables-hint small {
+  display: block;
+  color: #0c4a6e;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.variable-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.variable-tag {
+  background-color: white;
+  border: 1px solid #6366f1;
+  color: #6366f1;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.variable-tag:hover {
+  background-color: #6366f1;
+  color: white;
+}
+
+.template-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.template-form textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.message-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.segment-count {
+  font-weight: 600;
+  color: #6366f1;
+}
+
+.form-group.checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.form-group.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.form-group.checkbox input {
+  width: auto;
+  margin: 0;
+  accent-color: #6366f1;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.modal-footer button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.btn-secondary:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* ==================== BUTTONS ==================== */
+
+.btn-primary {
+  background-color: #6366f1;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* ==================== LOADING ==================== */
+
+.sms-settings-loading,
+.sms-editor-loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .sms-settings-container,
+  .sms-editor-container {
+    padding: 1rem;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .template-card {
+    min-height: 300px;
+  }
+
+  .templates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .template-footer {
+    flex-direction: column;
+  }
+
+  .usage-count {
+    margin-left: 0;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer button {
+    width: 100%;
+  }
+}
