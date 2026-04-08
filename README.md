@@ -30,6 +30,8 @@ Kick Loyalty è una **piattaforma SaaS multi-tenant** completa per gestire **loy
 - **Audit Logs**: Immutable audit trail for compliance & security monitoring (Phase 2)
 - **Redemptions**: Full workflow for request → approve → fulfill with admin management (Phase 2)
 - **Advanced Reporting**: CSV/PDF exports with scheduled reports (Phase 3)
+- **Batch Operations**: Bulk CRUD with async job tracking (Phase 4)
+- **Webhooks**: Event notifications with retry logic & HMAC (Phase 4)
 - **Scalable**: Architettura pronta per ±1M users
 - **Email**: Onboarding + notifications automatiche
 - **Testing**: Jest + Supertest con 35+ test cases
@@ -42,7 +44,7 @@ Kick Loyalty è una **piattaforma SaaS multi-tenant** completa per gestire **loy
 kick-loyalty-app/
 ├── 🔧 backend/
 │   ├── server.js                    - Express server (v8)
-│   ├── models.js                    - 20 MongoDB schemas (+ Achievement, UserAchievement, Leaderboard, TwoFactor, AuditLog, Redemption, SmsNotification, SmsTemplate, SmsSettings)
+│   ├── models.js                    - 23 MongoDB schemas (+ Achievement, UserAchievement, Leaderboard, TwoFactor, AuditLog, Redemption, SmsNotification, SmsTemplate, SmsSettings, BatchJob, Webhook, WebhookDelivery)
 │   ├── middleware.js                - Auth, RBAC, quota
 │   ├── saas-routes.js               - 20+ API endpoints
 │   ├── analytics-routes.js          - Analytics endpoints (Phase 2)
@@ -52,6 +54,8 @@ kick-loyalty-app/
 │   ├── redemption-routes.js         - Reward redemptions & fulfillment (Phase 2)
 │   ├── sms-routes.js                - SMS notifications (Phase 2.6)
 │   ├── export-routes.js             - CSV/PDF exports (Phase 3)
+│   ├── batch-routes.js              - Bulk operations & job tracking (Phase 4)
+│   ├── webhook-routes.js            - Webhooks & event delivery (Phase 4)
 │   ├── services/
 │   │   └── email.js                 - Email service (Nodemailer)
 │   ├── __tests__/
@@ -66,6 +70,8 @@ kick-loyalty-app/
 │   ├── 2FA.md                       - Two-Factor Authentication guide (Phase 2)
 │   ├── AUDIT.md                     - Audit logs & compliance (Phase 2)
 │   ├── REDEMPTION.md                - Reward redemptions & fulfillment (Phase 2)
+│   ├── EXPORT.md                    - CSV/PDF export guide (Phase 3)
+│   ├── BATCH_WEBHOOK.md             - Batch ops & webhooks guide (Phase 4)
 │   ├── TESTING_GUIDE.md             - Full test suite documentation
 │   ├── SAAS_IMPLEMENTATION.md       - Architecture deep-dive
 │   └── package.json                 - Dependencies + scripts
