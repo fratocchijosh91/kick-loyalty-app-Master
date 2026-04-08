@@ -33,6 +33,7 @@ const twoFactorRouter = require('./2fa-routes');
 const auditRouter = require('./audit-routes');
 const redemptionRouter = require('./redemption-routes');
 const smsRouter = require('./sms-routes');
+const exportRouter = require('./export-routes');
 
 // Email service
 const emailService = require('./services/email');
@@ -200,6 +201,7 @@ app.use('/api', twoFactorRouter);
 app.use('/api', auditRouter);
 app.use('/api', redemptionRouter);
 app.use('/api', smsRouter);
+app.use('/api', exportRouter);
 
 // ==================== ROUTES ====================
 

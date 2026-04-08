@@ -28,7 +28,9 @@
     "nodemailer-mailgun-transport": "^2.1.5",
     "speakeasy": "^2.0.0",
     "qrcode": "^1.5.3",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "json2csv": "^6.0.0",
+    "puppeteer": "^21.6.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",

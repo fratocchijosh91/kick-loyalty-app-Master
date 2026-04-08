@@ -13,6 +13,7 @@ import LeaderboardsPage from './pages/LeaderboardsPage';
 import AuditPage from './pages/AuditPage';
 import RedemptionsPage from './pages/RedemptionsPage';
 import SMSPage from './pages/SMSPage';
+import ExportPage from './pages/ExportPage';
 import './index.css';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
             <Route path="/org/:slug/audit" element={<AuditPage />} />
             <Route path="/org/:slug/redemptions" element={<RedemptionsPage />} />
             <Route path="/org/:slug/sms" element={<SMSPage />} />
+            <Route path="/org/:slug/exports" element={<ExportPage />} />
             <Route path="/org/:slug/settings" element={<SettingsPage />} />
 
             {/* Catch all */}
@@ -47,8 +49,6 @@ function App() {
     </Router>
   );
 }
-
-export default App;
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 

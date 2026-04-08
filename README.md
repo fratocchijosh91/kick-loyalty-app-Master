@@ -29,6 +29,7 @@ Kick Loyalty è una **piattaforma SaaS multi-tenant** completa per gestire **loy
 - **2FA Security**: TOTP-based authentication with backup codes & trusted devices (Phase 2)
 - **Audit Logs**: Immutable audit trail for compliance & security monitoring (Phase 2)
 - **Redemptions**: Full workflow for request → approve → fulfill with admin management (Phase 2)
+- **Advanced Reporting**: CSV/PDF exports with scheduled reports (Phase 3)
 - **Scalable**: Architettura pronta per ±1M users
 - **Email**: Onboarding + notifications automatiche
 - **Testing**: Jest + Supertest con 35+ test cases
@@ -50,6 +51,7 @@ kick-loyalty-app/
 │   ├── audit-routes.js              - Audit logging & compliance (Phase 2)
 │   ├── redemption-routes.js         - Reward redemptions & fulfillment (Phase 2)
 │   ├── sms-routes.js                - SMS notifications (Phase 2.6)
+│   ├── export-routes.js             - CSV/PDF exports (Phase 3)
 │   ├── services/
 │   │   └── email.js                 - Email service (Nodemailer)
 │   ├── __tests__/
@@ -80,6 +82,7 @@ kick-loyalty-app/
     │   │   ├── AuditPage.jsx        - Audit logs + compliance (Phase 2)
     │   │   ├── RedemptionsPage.jsx  - Reward redemptions & fulfillment (Phase 2)
     │   │   ├── SMSPage.jsx          - SMS notifications management (Phase 2.6)
+    │   │   ├── ExportPage.jsx       - CSV/PDF exports (Phase 3)
     │   │   └── SettingsPage.jsx     - Org config + API keys + 2FA setup
     │   ├── components/Layout/        - Sidebar, Navbar, Layout
     │   ├── components/sms/          - SMS notifications components (Phase 2.6)
@@ -88,9 +91,12 @@ kick-loyalty-app/
     │   │   ├── SMSNotificationList.jsx - SMS history viewer
     │   │   ├── SMSStatsPanel.jsx    - Admin SMS statistics dashboard
     │   │   └── sms.css              - SMS styling
-│   ├── components/TwoFactorSetup.jsx - 2FA setup modal with QR code (Phase 2)
-│   ├── components/TwoFactorVerify.jsx - 2FA verification during login (Phase 2)
-│   ├── components/TrustedDevices.jsx - Trusted device management (Phase 2)
+    │   ├── components/export/       - Export components (Phase 3)
+    │   │   ├── ExportManager.jsx    - Main export interface
+    │   │   └── export.css           - Export styling
+    │   ├── components/TwoFactorSetup.jsx - 2FA setup modal with QR code (Phase 2)
+    │   ├── components/TwoFactorVerify.jsx - 2FA verification during login (Phase 2)
+    │   ├── components/TrustedDevices.jsx - Trusted device management (Phase 2)
     │   ├── contexts/                 - Auth + Organization contexts
     │   ├── index.css                 - Tailwind globals
     │   ├── App.jsx                   - Routes + providers
@@ -332,6 +338,20 @@ POST   /sms/templates                      - Admin create SMS template
 PATCH  /sms/templates/{id}                 - Admin update SMS template
 DELETE /sms/templates/{id}                 - Admin delete SMS template
 GET    /sms/stats                          - Admin SMS statistics & cost tracking
+```
+
+### Exports & Reporting (Phase 3)
+```
+GET    /exports/csv/analytics              - Export analytics to CSV
+GET    /exports/csv/users                  - Export users list (admin)
+GET    /exports/csv/rewards                - Export rewards catalog (admin)
+GET    /exports/csv/redemptions            - Export redemption history (admin)
+GET    /exports/csv/audit                  - Export audit logs (admin)
+GET    /exports/pdf/analytics             - Generate PDF analytics report
+GET    /exports/pdf/leaderboard            - Generate PDF leaderboard report
+GET    /exports/formats                    - Get available export formats
+GET    /exports/history                    - Get user export history
+POST   /exports/scheduled                  - Create scheduled export (admin)
 ```
 
 📖 **Interactive API Docs**: 
