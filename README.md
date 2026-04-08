@@ -32,6 +32,7 @@ Kick Loyalty è una **piattaforma SaaS multi-tenant** completa per gestire **loy
 - **Advanced Reporting**: CSV/PDF exports with scheduled reports (Phase 3)
 - **Batch Operations**: Bulk CRUD with async job tracking (Phase 4)
 - **Webhooks**: Event notifications with retry logic & HMAC (Phase 4)
+- **Mobile API**: PWA support, offline sync, push notifications (Phase 5)
 - **Scalable**: Architettura pronta per ±1M users
 - **Email**: Onboarding + notifications automatiche
 - **Testing**: Jest + Supertest con 35+ test cases
@@ -44,7 +45,7 @@ Kick Loyalty è una **piattaforma SaaS multi-tenant** completa per gestire **loy
 kick-loyalty-app/
 ├── 🔧 backend/
 │   ├── server.js                    - Express server (v8)
-│   ├── models.js                    - 23 MongoDB schemas (+ Achievement, UserAchievement, Leaderboard, TwoFactor, AuditLog, Redemption, SmsNotification, SmsTemplate, SmsSettings, BatchJob, Webhook, WebhookDelivery)
+│   ├── models.js                    - 25 MongoDB schemas (+ Achievement, UserAchievement, Leaderboard, TwoFactor, AuditLog, Redemption, SmsNotification, SmsTemplate, SmsSettings, BatchJob, Webhook, WebhookDelivery, PushSubscription, Device)
 │   ├── middleware.js                - Auth, RBAC, quota
 │   ├── saas-routes.js               - 20+ API endpoints
 │   ├── analytics-routes.js          - Analytics endpoints (Phase 2)
@@ -56,6 +57,7 @@ kick-loyalty-app/
 │   ├── export-routes.js             - CSV/PDF exports (Phase 3)
 │   ├── batch-routes.js              - Bulk operations & job tracking (Phase 4)
 │   ├── webhook-routes.js            - Webhooks & event delivery (Phase 4)
+│   ├── mobile-routes.js             - Mobile API & PWA endpoints (Phase 5)
 │   ├── services/
 │   │   └── email.js                 - Email service (Nodemailer)
 │   ├── __tests__/
@@ -72,6 +74,7 @@ kick-loyalty-app/
 │   ├── REDEMPTION.md                - Reward redemptions & fulfillment (Phase 2)
 │   ├── EXPORT.md                    - CSV/PDF export guide (Phase 3)
 │   ├── BATCH_WEBHOOK.md             - Batch ops & webhooks guide (Phase 4)
+│   ├── MOBILE.md                    - Mobile API & PWA guide (Phase 5)
 │   ├── TESTING_GUIDE.md             - Full test suite documentation
 │   ├── SAAS_IMPLEMENTATION.md       - Architecture deep-dive
 │   └── package.json                 - Dependencies + scripts

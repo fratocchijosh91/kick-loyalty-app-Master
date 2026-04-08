@@ -36,6 +36,7 @@ const smsRouter = require('./sms-routes');
 const exportRouter = require('./export-routes');
 const batchRouter = require('./batch-routes');
 const webhookRouter = require('./webhook-routes');
+const mobileRouter = require('./mobile-routes');
 
 // Email service
 const emailService = require('./services/email');
@@ -206,6 +207,7 @@ app.use('/api', smsRouter);
 app.use('/api', exportRouter);
 app.use('/api', batchRouter);
 app.use('/api', webhookRouter);
+app.use('/api', mobileRouter);
 
 // ==================== ROUTES ====================
 

@@ -814,6 +814,94 @@ webhookDeliverySchema.index({ webhookId: 1, createdAt: -1 });
 webhookDeliverySchema.index({ status: 1, nextRetryAt: 1 });
 webhookDeliverySchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
+// ==================== PUSH SUBSCRIPTION ====================
+// For Web Push notifications
+const pushSubscriptionSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true, index: true },
+  
+  // Web Push subscription object
+  subscription: {
+    endpoint: { type: String, required: true },
+    expirationTime: { type: Date },
+    keys: {
+      p256dh: { type: String },
+      auth: { type: String }
+    }
+  },
+  
+  // Platform info
+  platform: { type: String, enum: ['web', 'ios', 'android'], required: true },
+  
+  // Device info
+  deviceInfo: {
+    deviceId: String,
+    model: String,
+    os: String,
+    osVersion: String,
+    appVersion: String,
+    browser: String
+  },
+  
+  // Status
+  active: { type: Boolean, default: true },
+  
+  // Usage tracking
+  createdAt: { type: Date, default: Date.now },
+  lastUsed: { type: Date, default: Date.now },
+  
+  // Expiration (auto-delete inactive after 90 days)
+  expiresAt: { type: Date, default: () => new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) }
+});
+
+pushSubscriptionSchema.index({ userId: 1, active: 1 });
+pushSubscriptionSchema.index({ 'subscription.endpoint': 1 });
+pushSubscriptionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+// ==================== DEVICE ====================
+// Device management for mobile apps
+const deviceSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  
+  deviceId: { type: String, required: true }, // Unique device identifier
+  platform: { type: String, enum: ['ios', 'android', 'web'], required: true },
+  
+  // Device details
+  deviceInfo: {
+    model: String,
+    brand: String,
+    os: String,
+    osVersion: String,
+    screenSize: String,
+    appVersion: String
+  },
+  
+  // Push notification
+  pushSubscriptionId: { type: mongoose.Schema.Types.ObjectId, ref: 'PushSubscription' },
+  pushEnabled: { type: Boolean, default: true },
+  
+  // Notification preferences
+  notificationPreferences: {
+    redemptions: { type: Boolean, default: true },
+    points: { type: Boolean, default: true },
+    rewards: { type: Boolean, default: true },
+    achievements: { type: Boolean, default: true },
+    announcements: { type: Boolean, default: true },
+    marketing: { type: Boolean, default: false }
+  },
+  
+  // Status
+  isActive: { type: Boolean, default: true },
+  lastActive: { type: Date, default: Date.now },
+  
+  // Timestamps
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+deviceSchema.index({ userId: 1, deviceId: 1 }, { unique: true });
+deviceSchema.index({ userId: 1, isActive: 1 });
+
 // ==================== MODEL EXPORTS ====================
 module.exports = {
   Organization: mongoose.models.Organization || mongoose.model('Organization', organizationSchema),
@@ -836,5 +924,7 @@ module.exports = {
   SmsSettings: mongoose.models.SmsSettings || mongoose.model('SmsSettings', smsSettingsSchema),
   BatchJob: mongoose.models.BatchJob || mongoose.model('BatchJob', batchJobSchema),
   Webhook: mongoose.models.Webhook || mongoose.model('Webhook', webhookSchema),
-  WebhookDelivery: mongoose.models.WebhookDelivery || mongoose.model('WebhookDelivery', webhookDeliverySchema)
+  WebhookDelivery: mongoose.models.WebhookDelivery || mongoose.model('WebhookDelivery', webhookDeliverySchema),
+  PushSubscription: mongoose.models.PushSubscription || mongoose.model('PushSubscription', pushSubscriptionSchema),
+  Device: mongoose.models.Device || mongoose.model('Device', deviceSchema)
 };
