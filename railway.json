@@ -1,5 +1,0 @@
-{
-  "rootDirectory": "backend",
-  "startCommand": "npm start",
-  "healthcheckPath": "/api/health"
-}
