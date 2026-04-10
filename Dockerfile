@@ -2,10 +2,10 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Force cache refresh - timestamp: $(date)
-ARG CACHE_BUST=2026-04-10-1500
+# Force cache refresh - timestamp: 2026-04-10-1507
+ARG CACHE_BUST=2026-04-10-1507
 
-# Copy backend package files
+# Copy backend package files (cache invalidated)
 COPY backend/package*.json ./
 
 # Install dependencies (force fresh install)
