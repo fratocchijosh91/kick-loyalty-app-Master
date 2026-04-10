@@ -2,11 +2,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Force cache refresh - timestamp: $(date)
+ARG CACHE_BUST=2026-04-10-1500
+
 # Copy backend package files
 COPY backend/package*.json ./
 
-# Install dependencies
-RUN npm install --production
+# Install dependencies (force fresh install)
+RUN npm cache clean --force && npm install --production
 
 # Copy backend source
 COPY backend/ ./
