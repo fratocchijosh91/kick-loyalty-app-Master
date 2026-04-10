@@ -5,8 +5,9 @@ WORKDIR /app
 # Force cache refresh - timestamp: 2026-04-10-1507
 ARG CACHE_BUST=2026-04-10-1507
 
-# Copy backend package files (cache invalidated)
-COPY backend/package*.json ./
+# Copy package.json explicitly (force cache invalidation)
+COPY backend/package.json ./
+COPY backend/package-lock.json ./ || true
 
 # Install dependencies (force fresh install)
 RUN npm cache clean --force && npm install --production
