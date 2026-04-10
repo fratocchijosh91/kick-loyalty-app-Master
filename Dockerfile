@@ -18,3 +18,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 # Start
 CMD ["npm", "start"]
 # Force rebuild
+# Cache refresh Fri Apr 10 14:59:37 CEST 2026
