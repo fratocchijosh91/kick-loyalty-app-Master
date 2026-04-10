@@ -2,6 +2,7 @@
   "name": "kick-loyalty-app",
   "version": "1.0.0",
   "description": "Kick Loyalty System - Full Stack",
+  "dependencies": {},
   "scripts": {
     "postinstall": "cd backend && npm install",
     "start": "cd backend && npm start",
