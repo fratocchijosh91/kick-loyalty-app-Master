@@ -2,8 +2,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Force cache refresh - timestamp: 2026-04-10-1507
-ARG CACHE_BUST=2026-04-10-1507
+# Force cache refresh - timestamp: 2026-04-10-1515
+ARG CACHE_BUST=2026-04-10-1515
+RUN echo "Cache bust: 2026-04-10-1515"
 
 # Copy package.json explicitly (force cache invalidation)
 COPY backend/package.json ./
