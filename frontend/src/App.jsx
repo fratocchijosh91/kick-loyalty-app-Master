@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { OrganizationProvider } from './contexts/OrganizationContext';
@@ -14,41 +14,8 @@ import AuditPage from './pages/AuditPage';
 import RedemptionsPage from './pages/RedemptionsPage';
 import SMSPage from './pages/SMSPage';
 import ExportPage from './pages/ExportPage';
+import axios from 'axios';
 import './index.css';
-
-function App() {
-  return (
-    <Router>
-      <AuthProvider>
-        <OrganizationProvider>
-          <Routes>
-            {/* Public */}
-            <Route path="/" element={<Login />} />
-            <Route path="/login" element={<Navigate to="/" replace />} />
-
-            {/* Dashboard */}
-            <Route path="/dashboard" element={<Dashboard />} />
-
-            {/* Organization Routes */}
-            <Route path="/org/:slug/rewards" element={<RewardsPage />} />
-            <Route path="/org/:slug/team" element={<TeamPage />} />
-            <Route path="/org/:slug/billing" element={<BillingPage />} />
-            <Route path="/org/:slug/analytics" element={<AnalyticsPage />} />
-            <Route path="/org/:slug/leaderboards" element={<LeaderboardsPage />} />
-            <Route path="/org/:slug/audit" element={<AuditPage />} />
-            <Route path="/org/:slug/redemptions" element={<RedemptionsPage />} />
-            <Route path="/org/:slug/sms" element={<SMSPage />} />
-            <Route path="/org/:slug/exports" element={<ExportPage />} />
-            <Route path="/org/:slug/settings" element={<SettingsPage />} />
-
-            {/* Catch all */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </OrganizationProvider>
-      </AuthProvider>
-    </Router>
-  );
-}
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
