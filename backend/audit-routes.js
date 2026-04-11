@@ -12,7 +12,7 @@
 
 const express = require('express');
 const { AuditLog } = require('./models');
-const { authenticateToken, requirePermission } = require('./middleware');
+const { authenticateToken, requirePermissions } = require('./middleware');
 
 const router = express.Router();
 
@@ -66,7 +66,7 @@ module.exports.logAuditEvent = logAuditEvent;
  * Requires: admin or owner role
  * Body: { action, resourceType, resourceId, resourceName?, details, changes?, success? }
  */
-router.post('/api/audit/log', authenticateToken, requirePermission('audit:write'), async (req, res) => {
+router.post('/api/audit/log', authenticateToken, requirePermissions('audit:write'), async (req, res) => {
   try {
     const { action, resourceType, resourceId, resourceName, details, changes, success } = req.body;
 
@@ -126,7 +126,7 @@ router.post('/api/audit/log', authenticateToken, requirePermission('audit:write'
  * - page: Pagination (default: 1)
  * - limit: Items per page (default: 25, max: 500)
  */
-router.get('/api/audit/logs', authenticateToken, requirePermission('audit:read'), async (req, res) => {
+router.get('/api/audit/logs', authenticateToken, requirePermissions('audit:read'), async (req, res) => {
   try {
     const {
       action,
@@ -222,7 +222,7 @@ router.get('/api/audit/logs', authenticateToken, requirePermission('audit:read')
  * GET /api/audit/logs/:logId
  * Get a specific audit log entry
  */
-router.get('/api/audit/logs/:logId', authenticateToken, requirePermission('audit:read'), async (req, res) => {
+router.get('/api/audit/logs/:logId', authenticateToken, requirePermissions('audit:read'), async (req, res) => {
   try {
     const log = await AuditLog.findOne({
       _id: req.params.logId,
@@ -247,7 +247,7 @@ router.get('/api/audit/logs/:logId', authenticateToken, requirePermission('audit
  * Query params: (same as /logs endpoint)
  * - format: 'csv' or 'json' (default: csv)
  */
-router.get('/api/audit/export', authenticateToken, requirePermission('audit:export'), async (req, res) => {
+router.get('/api/audit/export', authenticateToken, requirePermissions('audit:export'), async (req, res) => {
   try {
     const {
       action,
@@ -328,7 +328,7 @@ router.get('/api/audit/export', authenticateToken, requirePermission('audit:expo
  * 
  * Returns: Actions by type, users with most activity, failed operations, etc.
  */
-router.get('/api/audit/stats', authenticateToken, requirePermission('audit:read'), async (req, res) => {
+router.get('/api/audit/stats', authenticateToken, requirePermissions('audit:read'), async (req, res) => {
   try {
     const { daysBack = 30 } = req.query;
 
@@ -454,7 +454,7 @@ router.get('/api/audit/stats', authenticateToken, requirePermission('audit:read'
  * Get audit events in timeline format
  * Useful for visualization of events over time
  */
-router.get('/api/audit/timeline', authenticateToken, requirePermission('audit:read'), async (req, res) => {
+router.get('/api/audit/timeline', authenticateToken, requirePermissions('audit:read'), async (req, res) => {
   try {
     const { daysBack = 7 } = req.query;
 
@@ -505,7 +505,7 @@ router.get('/api/audit/timeline', authenticateToken, requirePermission('audit:re
  * GET /api/audit/user/:userId/activity
  * Get activity log for a specific user
  */
-router.get('/api/audit/user/:userId/activity', authenticateToken, requirePermission('audit:read'), async (req, res) => {
+router.get('/api/audit/user/:userId/activity', authenticateToken, requirePermissions('audit:read'), async (req, res) => {
   try {
     const { limit = 50, page = 1 } = req.query;
     const limitNum = Math.min(100, parseInt(limit, 10) || 50);

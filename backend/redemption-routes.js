@@ -12,7 +12,7 @@
 
 const express = require('express');
 const { Redemption, Reward, ViewerPoints, User, Organization } = require('./models');
-const { authenticateToken, requirePermission } = require('./middleware');
+const { authenticateToken, requirePermissions } = require('./middleware');
 const { logAuditEvent } = require('./audit-routes');
 
 const router = express.Router();
@@ -229,7 +229,7 @@ router.get('/api/redemptions/:id', authenticateToken, async (req, res) => {
 router.patch(
   '/api/redemptions/:id/approve',
   authenticateToken,
-  requirePermission('redemptions:approve'),
+  requirePermissions('redemptions:approve'),
   async (req, res) => {
     try {
       const { approverComments = '' } = req.body;
@@ -296,7 +296,7 @@ router.patch(
 router.patch(
   '/api/redemptions/:id/reject',
   authenticateToken,
-  requirePermission('redemptions:approve'),
+  requirePermissions('redemptions:approve'),
   async (req, res) => {
     try {
       const { reason = 'Nessun motivo fornito' } = req.body;
@@ -376,7 +376,7 @@ router.patch(
 router.patch(
   '/api/redemptions/:id/fulfill',
   authenticateToken,
-  requirePermission('redemptions:approve'),
+  requirePermissions('redemptions:approve'),
   async (req, res) => {
     try {
       const { fulfillmentMethod = 'digital', fulfillmentDetails = {} } = req.body;
@@ -456,7 +456,7 @@ router.patch(
 router.get(
   '/api/redemptions/pending',
   authenticateToken,
-  requirePermission('redemptions:approve'),
+  requirePermissions('redemptions:approve'),
   async (req, res) => {
     try {
       const { page = 1, limit = 25 } = req.query;
@@ -554,7 +554,7 @@ router.get('/api/rewards/:rewardId/redemptions', authenticateToken, async (req, 
 router.get(
   '/api/redemptions/stats',
   authenticateToken,
-  requirePermission('redemptions:approve'),
+  requirePermissions('redemptions:approve'),
   async (req, res) => {
     try {
       const { daysBack = 30 } = req.query;
