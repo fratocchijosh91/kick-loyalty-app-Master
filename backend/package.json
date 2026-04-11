@@ -28,8 +28,7 @@
     "speakeasy": "^2.0.0",
     "qrcode": "^1.5.3",
     "uuid": "^9.0.1",
-    "json2csv": "^5.0.7",
-    "puppeteer": "^21.6.1"
+    "json2csv": "^5.0.7"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",
