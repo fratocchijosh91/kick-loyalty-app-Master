@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: kick-loyalty-backend
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false  # Inserisci tu manualmente in dashboard
+      - key: JWT_SECRET
+        sync: false  # Inserisci tu manualmente
+      - key: FRONTEND_URL
+        sync: false  # Aggiorneremo dopo deploy frontend
+      - key: EMAIL_PROVIDER
+        value: gmail
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+    healthCheckPath: /api/health
