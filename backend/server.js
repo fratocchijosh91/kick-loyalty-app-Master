@@ -148,20 +148,6 @@ const aiLimiter = rateLimit({
   message: { error: 'Troppe richieste AI, riprova tra un minuto.' }
 });
 
-// Middleware JWT auth
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Token mancante' });
-  try {
-    const decoded = require('jsonwebtoken').verify(token, process.env.JWT_SECRET || 'fallback_secret_change_me');
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(403).json({ error: 'Token non valido o scaduto' });
-  }
-};
-
 // Helper validazione
 const validate = (req, res, next) => {
   const errors = validationResult(req);
