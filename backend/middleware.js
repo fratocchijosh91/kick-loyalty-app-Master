@@ -137,6 +137,14 @@ const requirePermissions = (requiredPermissions = []) => {
   };
 };
 
+/**
+ * Verifica un singolo permesso
+ * checkPermission('canManageRewards')
+ */
+const checkPermission = (permission) => {
+  return requirePermissions([permission]);
+};
+
 // ==================== QUOTA ENFORCEMENT ====================
 /**
  * Verifica limiti quota dell'organizzazione
@@ -298,6 +306,7 @@ module.exports = {
   loadOrganization,
   requireOrganizationAccess,
   requirePermissions,
+  checkPermission,
   checkQuota,
   recordUsage,
   requireActiveSubscription,
