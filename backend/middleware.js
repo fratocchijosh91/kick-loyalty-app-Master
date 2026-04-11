@@ -145,6 +145,27 @@ const checkPermission = (permission) => {
   return requirePermissions([permission]);
 };
 
+/**
+ * Verifica che l'utente sia admin o owner
+ * requireAdmin
+ */
+const requireAdmin = async (req, res, next) => {
+  if (!req.teamMember) {
+    return res.status(401).json({ error: 'No team member context', code: 'NO_MEMBER_CONTEXT' });
+  }
+
+  const { role } = req.teamMember;
+
+  if (!['owner', 'admin'].includes(role)) {
+    return res.status(403).json({ 
+      error: 'Accesso negato. Solo admin o owner.',
+      code: 'ADMIN_ONLY' 
+    });
+  }
+
+  next();
+};
+
 // ==================== QUOTA ENFORCEMENT ====================
 /**
  * Verifica limiti quota dell'organizzazione
@@ -307,6 +328,7 @@ module.exports = {
   requireOrganizationAccess,
   requirePermissions,
   checkPermission,
+  requireAdmin,
   checkQuota,
   recordUsage,
   requireActiveSubscription,
