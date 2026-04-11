@@ -122,37 +122,8 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
 
-// CORS: supporta multipli domini (FRONTEND_URL può essere comma-separated)
-const corsOrigins = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(',').map(o => o.trim()).filter(Boolean)
-  : ['https://kick-loyalty-app-master-n2zndwxyb-fratocchijosh91s-projects.vercel.app', '*'];
-
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc)
-    if (!origin) return callback(null, true);
-
-    // Check if origin matches allowed origins (supports wildcards)
-    const allowed = corsOrigins.some(allowedOrigin => {
-      if (allowedOrigin === '*') return true;
-      if (allowedOrigin.includes('*')) {
-        const regex = new RegExp(allowedOrigin.replace(/\*/g, '.*'));
-        return regex.test(origin);
-      }
-      return allowedOrigin === origin;
-    });
-
-    if (allowed) {
-      callback(null, true);
-    } else {
-      console.warn('CORS blocked origin:', origin, '- Allowed:', corsOrigins);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: false,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// CORS: accetta qualsiasi origine per testing
+app.use(cors({ origin: '*', credentials: false }));
 app.use(express.json({ limit: '10kb' }));
 
 // Rate limiting globale
