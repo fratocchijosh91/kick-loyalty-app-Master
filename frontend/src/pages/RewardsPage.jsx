@@ -21,8 +21,8 @@ const RewardsPage = () => {
 
   const loadData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/rewards`);
-      setRewards(response.data);
+      const response = await fetch(`${API_URL}/rewards`).then(r => r.json());
+      setRewards(response);
     } catch (err) {
       console.error('Errore caricamento rewards:', err);
     }
@@ -48,22 +48,28 @@ const RewardsPage = () => {
         active: true
       };
 
+      const token = localStorage.getItem('kickloyalty_token');
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      };
+      
       if (editingId) {
         // Update
-        const token = localStorage.getItem('kickloyalty_token');
-        const response = await axios.put(`${API_URL}/rewards/${editingId}`, payload, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
-        setRewards(rewards.map(r => r._id === editingId ? response.data : r));
+        const response = await fetch(`${API_URL}/rewards/${editingId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(payload)
+        }).then(r => r.json());
+        setRewards(rewards.map(r => r._id === editingId ? response : r));
       } else {
         // Create
-        const token = localStorage.getItem('kickloyalty_token');
-        console.log('DEBUG - Token:', token ? token.substring(0, 30) + '...' : 'MANCANTE');
-        console.log('DEBUG - API_URL:', API_URL);
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        console.log('DEBUG - Headers:', JSON.stringify(headers));
-        const response = await axios.post(`${API_URL}/rewards`, payload, { headers });
-        setRewards([response.data, ...rewards]);
+        const response = await fetch(`${API_URL}/rewards`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        }).then(r => r.json());
+        setRewards([response, ...rewards]);
       }
 
       resetForm();
