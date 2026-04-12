@@ -58,9 +58,11 @@ const RewardsPage = () => {
       } else {
         // Create
         const token = localStorage.getItem('kickloyalty_token');
-        const response = await axios.post(`${API_URL}/rewards`, payload, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
+        console.log('DEBUG - Token:', token ? token.substring(0, 30) + '...' : 'MANCANTE');
+        console.log('DEBUG - API_URL:', API_URL);
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        console.log('DEBUG - Headers:', JSON.stringify(headers));
+        const response = await axios.post(`${API_URL}/rewards`, payload, { headers });
         setRewards([response.data, ...rewards]);
       }
 
