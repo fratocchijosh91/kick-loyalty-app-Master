@@ -172,7 +172,7 @@ userSchema.index({ email: 1, deletedAt: 1 });
 
 // ==================== REWARD (updated) ====================
 const rewardSchema = new mongoose.Schema({
-  organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true, index: true },
+  organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', index: true },  // reso opzionale
   name: { type: String, required: true },
   description: { type: String },
   points: { type: Number, required: true },
