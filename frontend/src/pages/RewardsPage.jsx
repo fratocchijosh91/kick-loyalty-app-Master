@@ -4,7 +4,7 @@ import { useOrganization } from '../contexts/OrganizationContext';
 import axios from 'axios';
 import { Plus, Edit2, Trash2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_URL = 'https://kick-loyalty-app-master.onrender.com/api';
 
 const RewardsPage = () => {
   const { currentOrg } = useOrganization();
