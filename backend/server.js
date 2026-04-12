@@ -183,21 +183,7 @@ let mockRewards = [
 
 global.oauthSessions = {};
 
-// ==================== MULTI-TENANT SaaS ROUTES ====================
-// Integrare tutte le route SaaS (organizations, team, billing, etc)
-app.use('/api', saasRouter);
-app.use('/api', analyticsRouter);
-app.use('/api', leaderboardRouter);
-app.use('/api', twoFactorRouter);
-app.use('/api', auditRouter);
-app.use('/api', redemptionRouter);
-app.use('/api', smsRouter);
-app.use('/api', exportRouter);
-app.use('/api', batchRouter);
-app.use('/api', webhookRouter);
-app.use('/api', mobileRouter);
-
-// ==================== ROUTES ====================
+// ==================== ROUTES PUBBLICHE (prima dei router protetti) ====================
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running!' });
@@ -302,7 +288,7 @@ app.post('/api/auth/kick/callback', authLimiter, async (req, res) => {
   }
 });
 
-// Login con username (fallback)
+// Login con username (fallback) - DEVE ESSERE PRIMA dei router protetti
 app.post('/api/auth/login', authLimiter, [
   body('username').trim().isLength({ min: 1, max: 50 }).escape()
 ], validate, async (req, res) => {
@@ -355,6 +341,89 @@ app.post('/api/auth/login', authLimiter, [
     res.status(500).json({ error: 'Errore durante il login' });
   }
 });
+
+// Proxy per Groq AI (gratuito) - Route pubblica
+app.post('/api/ai/chat', aiLimiter, async (req, res) => {
+  try {
+    const { messages } = req.body;
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'messages array required' });
+    }
+    const groqKey = (process.env.GROQ_API_KEY || '').trim();
+    if (!groqKey) {
+      return res.status(500).json({ error: 'Groq API key non configurata sul server' });
+    }
+    const groqMessages = [
+      { role: 'system', content: "Sei l'assistente AI di KickLoyalty, piattaforma rewards per streamer su Kick. Aiuta gli streamer a crescere, suggerisci idee per rewards, strategie di engagement e come usare al meglio il sistema. Rispondi in italiano, in modo conciso e pratico." },
+      ...messages
+    ];
+    const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
+      model: 'llama-3.1-8b-instant',
+      max_tokens: 1000,
+      messages: groqMessages
+    }, {
+      headers: {
+        'Authorization': `Bearer ${groqKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const text = response.data.choices?.[0]?.message?.content || 'Nessuna risposta.';
+    res.json({ content: [{ type: 'text', text }] });
+  } catch (error) {
+    console.error('AI proxy error:', error.response?.data || error.message);
+    res.status(500).json({ error: error.response?.data?.error?.message || error.message });
+  }
+});
+
+// ==================== ROUTE PUBBLICHE API (prima dei router protetti) ====================
+
+// GET /api/rewards - pubblico
+app.get('/api/rewards', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const rewards = await Reward.find(req.query.userId ? { userId: req.query.userId } : {}).sort({ createdAt: -1 });
+      res.json(rewards);
+    } else { res.json(mockRewards); }
+  } catch (error) { res.json(mockRewards); }
+});
+
+// GET /api/stats - pubblico
+app.get('/api/stats', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const [totalUsers, totalRewards, pointsAgg, redeemedAgg] = await Promise.all([
+        User.countDocuments(),
+        Reward.countDocuments({ active: true }),
+        User.aggregate([{ $group: { _id: null, total: { $sum: '$totalPoints' } } }]),
+        Reward.aggregate([{ $group: { _id: null, total: { $sum: '$redeemedCount' } } }])
+      ]);
+      res.json({
+        totalViewers: totalUsers,
+        activeMembers: totalUsers,
+        totalPoints: pointsAgg[0]?.total || 0,
+        rewardsRedeemed: redeemedAgg[0]?.total || 0
+      });
+    } else {
+      res.json({ totalViewers: 0, activeMembers: 0, totalPoints: 0, rewardsRedeemed: 0 });
+    }
+  } catch (error) {
+    res.json({ totalViewers: 0, activeMembers: 0, totalPoints: 0, rewardsRedeemed: 0 });
+  }
+});
+
+// ==================== MULTI-TENANT SaaS ROUTES (dopo le route pubbliche) ====================
+// Integrare tutte le route SaaS (organizations, team, billing, etc)
+app.use('/api', saasRouter);
+app.use('/api', analyticsRouter);
+app.use('/api', leaderboardRouter);
+app.use('/api', twoFactorRouter);
+app.use('/api', auditRouter);
+app.use('/api', redemptionRouter);
+app.use('/api', smsRouter);
+app.use('/api', exportRouter);
+app.use('/api', batchRouter);
+app.use('/api', webhookRouter);
+app.use('/api', mobileRouter);
 
 // ==================== STRIPE ====================
 
@@ -721,40 +790,6 @@ app.get('/api/viewer-points/leaderboard/:streamerUsername', async (req, res) => 
     res.status(500).json({ error: error.message });
   }
 });
-
-// Proxy per Groq AI (gratuito)
-app.post('/api/ai/chat', aiLimiter, async (req, res) => {
-  try {
-    const { messages } = req.body;
-    if (!messages || !Array.isArray(messages)) {
-      return res.status(400).json({ error: 'messages array required' });
-    }
-    const groqKey = (process.env.GROQ_API_KEY || '').trim();
-    if (!groqKey) {
-      return res.status(500).json({ error: 'Groq API key non configurata sul server' });
-    }
-    const groqMessages = [
-      { role: 'system', content: "Sei l'assistente AI di KickLoyalty, piattaforma rewards per streamer su Kick. Aiuta gli streamer a crescere, suggerisci idee per rewards, strategie di engagement e come usare al meglio il sistema. Rispondi in italiano, in modo conciso e pratico." },
-      ...messages
-    ];
-    const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-      model: 'llama-3.1-8b-instant',
-      max_tokens: 1000,
-      messages: groqMessages
-    }, {
-      headers: {
-        'Authorization': `Bearer ${groqKey}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    const text = response.data.choices?.[0]?.message?.content || 'Nessuna risposta.';
-    res.json({ content: [{ type: 'text', text }] });
-  } catch (error) {
-    console.error('AI proxy error:', error.response?.data || error.message);
-    res.status(500).json({ error: error.response?.data?.error?.message || error.message });
-  }
-});
-
 
 connectDB();
 emailService.initializeEmailService();

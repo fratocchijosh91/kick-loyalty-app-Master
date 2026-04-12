@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/Layout/DashboardLayout';
 import { useOrganization } from '../contexts/OrganizationContext';
+import axios from 'axios';
 import { Plus, Edit2, Trash2, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 const RewardsPage = () => {
-  const { currentOrg, loadRewards, createReward, updateReward, loading, error } = useOrganization();
+  const { currentOrg } = useOrganization();
   const [rewards, setRewards] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -13,14 +14,13 @@ const RewardsPage = () => {
   const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
-    if (!currentOrg?.slug) return;
     loadData();
-  }, [currentOrg]);
+  }, []);
 
   const loadData = async () => {
     try {
-      const data = await loadRewards(currentOrg.slug);
-      setRewards(data);
+      const response = await axios.get('/api/rewards');
+      setRewards(response.data);
     } catch (err) {
       console.error('Errore caricamento rewards:', err);
     }
@@ -48,12 +48,18 @@ const RewardsPage = () => {
 
       if (editingId) {
         // Update
-        await updateReward(currentOrg.slug, editingId, payload);
-        setRewards(rewards.map(r => r._id === editingId ? { ...r, ...payload } : r));
+        const token = localStorage.getItem('kickloyalty_token');
+        const response = await axios.put(`/api/rewards/${editingId}`, payload, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        setRewards(rewards.map(r => r._id === editingId ? response.data : r));
       } else {
         // Create
-        const newReward = await createReward(currentOrg.slug, payload);
-        setRewards([newReward, ...rewards]);
+        const token = localStorage.getItem('kickloyalty_token');
+        const response = await axios.post('/api/rewards', payload, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        setRewards([response.data, ...rewards]);
       }
 
       resetForm();

@@ -27,4 +27,6 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      - key: GROQ_API_KEY
+        sync: false  # Inserisci la chiave API Groq
     healthCheckPath: /api/health

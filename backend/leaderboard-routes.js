@@ -6,10 +6,7 @@ const router = express.Router();
 const { authenticateToken, loadOrganization, requireOrganizationAccess, requirePermissions } = require('./middleware');
 const { ViewerPoints, Achievement, UserAchievement, Leaderboard } = require('./models');
 
-// Middleware: Apply to all routes
-router.use(authenticateToken);
-router.use(loadOrganization);
-router.use(requireOrganizationAccess);
+// Nota: authenticateToken rimosso da qui, applicato alle route specifiche se necessario
 
 /**
  * GET /api/leaderboards
