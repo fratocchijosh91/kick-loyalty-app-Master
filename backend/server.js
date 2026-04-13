@@ -430,14 +430,33 @@ app.post('/api/ai/chat', aiLimiter, async (req, res) => {
 
 // ==================== ROUTE PUBBLICHE API (prima dei router protetti) ====================
 
+const getOwnedRewardQuery = (userId) => ({
+  $or: [{ createdBy: userId }, { userId }]
+});
+
 // GET /api/rewards - pubblico
 app.get('/api/rewards', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      const rewards = await Reward.find(req.query.userId ? { userId: req.query.userId } : {}).sort({ createdAt: -1 });
+      const rewardQuery = req.query.userId ? getOwnedRewardQuery(req.query.userId) : {};
+      const rewards = await Reward.find(rewardQuery).sort({ createdAt: -1 });
       res.json(rewards);
     } else { res.json(mockRewards); }
   } catch (error) { res.json(mockRewards); }
+});
+
+// GET /api/rewards/mine - autenticato, solo reward dell'utente
+app.get('/api/rewards/mine', authenticateToken, async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      const rewards = await Reward.find(getOwnedRewardQuery(req.user.id)).sort({ createdAt: -1 });
+      return res.json(rewards);
+    }
+
+    return res.json(mockRewards);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 });
 
 // GET /api/stats - pubblico
@@ -517,7 +536,8 @@ app.post('/api/stripe/cancel', async (req, res) => {
 app.get('/api/rewards', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      const rewards = await Reward.find(req.query.userId ? { userId: req.query.userId } : {}).sort({ createdAt: -1 });
+      const rewardQuery = req.query.userId ? getOwnedRewardQuery(req.query.userId) : {};
+      const rewards = await Reward.find(rewardQuery).sort({ createdAt: -1 });
       res.json(rewards);
     } else { res.json(mockRewards); }
   } catch (error) { res.json(mockRewards); }
@@ -530,7 +550,10 @@ app.post('/api/rewards', authenticateToken, [
 ], validate, async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      const reward = new Reward(req.body);
+      const reward = new Reward({
+        ...req.body,
+        createdBy: req.user.id
+      });
       await reward.save();
       res.json(reward);
     } else {
@@ -544,7 +567,12 @@ app.post('/api/rewards', authenticateToken, [
 app.put('/api/rewards/:id', authenticateToken, async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      const reward = await Reward.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const reward = await Reward.findOneAndUpdate(
+        { _id: req.params.id, ...getOwnedRewardQuery(req.user.id) },
+        req.body,
+        { new: true }
+      );
+      if (!reward) return res.status(404).json({ error: 'Reward non trovata' });
       res.json(reward);
     } else {
       const idx = mockRewards.findIndex(r => r.id === req.params.id);
@@ -557,7 +585,8 @@ app.put('/api/rewards/:id', authenticateToken, async (req, res) => {
 app.delete('/api/rewards/:id', authenticateToken, async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1) {
-      await Reward.findByIdAndDelete(req.params.id);
+      const deleted = await Reward.findOneAndDelete({ _id: req.params.id, ...getOwnedRewardQuery(req.user.id) });
+      if (!deleted) return res.status(404).json({ error: 'Reward non trovata' });
     } else {
       mockRewards = mockRewards.filter(r => r.id !== req.params.id);
     }

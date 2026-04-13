@@ -361,7 +361,7 @@ export default function App() {
     if (!currentUser) return;
     try {
       const [rRes, sRes, aRes] = await Promise.all([
-        axios.get(`${API_URL}/rewards`),
+        axios.get(`${API_URL}/rewards/mine`),
         axios.get(`${API_URL}/stats`),
         axios.get(`${API_URL}/analytics`)
       ]);
