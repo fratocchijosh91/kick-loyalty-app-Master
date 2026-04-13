@@ -20,6 +20,22 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Check required repository secrets
+        env:
+          SMOKE_API_URL: ${{ secrets.SMOKE_API_URL }}
+          TELEMETRY_ADMIN_SECRET: ${{ secrets.TELEMETRY_ADMIN_SECRET }}
+        run: |
+          err=0
+          if [ -z "$SMOKE_API_URL" ]; then
+            echo "::error::Missing repository secret SMOKE_API_URL. Set it to your API base, e.g. https://<service>.onrender.com/api"
+            err=1
+          fi
+          if [ -z "$TELEMETRY_ADMIN_SECRET" ]; then
+            echo "::error::Missing repository secret TELEMETRY_ADMIN_SECRET. Use the same value as TELEMETRY_ADMIN_SECRET on Render."
+            err=1
+          fi
+          exit $err
+
       - name: Run smoke test
         env:
           SMOKE_API_URL: ${{ secrets.SMOKE_API_URL }}
