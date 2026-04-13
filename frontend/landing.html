@@ -1002,12 +1002,49 @@
     <li><a href="#features">Features</a></li>
     <li><a href="#pricing">Prezzi</a></li>
     <li><a href="https://kick-loyalty-app.vercel.app">App</a></li>
+    <li><a href="/privacy.html">Privacy</a></li>
+    <li><a href="/terms.html">Termini</a></li>
     <li><a href="mailto:info@kickloyalty.com">Contatti</a></li>
   </ul>
   <div class="footer-copy">© 2026 KickLoyalty. Tutti i diritti riservati.</div>
 </footer>
 
 <script>
+  const consentKey = 'kickloyalty_cookie_consent';
+  const trackLandingEvent = (event, properties = {}) => {
+    if (localStorage.getItem(consentKey) !== 'accepted') return;
+    fetch('https://kick-loyalty-app-master.onrender.com/api/telemetry/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, source: 'landing', properties })
+    }).catch(() => {});
+  };
+
+  if (!localStorage.getItem(consentKey)) {
+    const bar = document.createElement('div');
+    bar.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;z-index:9999;background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;justify-content:space-between;';
+    bar.innerHTML = `
+      <div style="font-size:12px;color:#bfbfbf;line-height:1.4;">
+        Usiamo cookie tecnici e analytics. <a href="/privacy.html" style="color:#53FC18">Privacy</a>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button id="consent-no" style="padding:8px 10px;background:#222;border:1px solid #333;color:#ddd;border-radius:8px;cursor:pointer;">Rifiuta</button>
+        <button id="consent-yes" style="padding:8px 10px;background:#53FC18;border:none;color:#000;border-radius:8px;font-weight:700;cursor:pointer;">Accetta</button>
+      </div>
+    `;
+    document.body.appendChild(bar);
+    document.getElementById('consent-no').onclick = () => { localStorage.setItem(consentKey, 'rejected'); bar.remove(); };
+    document.getElementById('consent-yes').onclick = () => {
+      localStorage.setItem(consentKey, 'accepted');
+      trackLandingEvent('consent_accepted');
+      bar.remove();
+    };
+  }
+
+  document.querySelectorAll('a[href*="kick-loyalty-app.vercel.app"]').forEach((el) => {
+    el.addEventListener('click', () => trackLandingEvent('cta_clicked', { target: el.getAttribute('href') }));
+  });
+
   // Scroll reveal
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {

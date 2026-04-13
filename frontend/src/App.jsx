@@ -247,6 +247,12 @@ const getAuthHeaders = () => {
   const token = localStorage.getItem("kickloyalty_token") || localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
+const CONSENT_KEY = "kickloyalty_cookie_consent";
+const rewardTemplates = [
+  { name: "🎯 Shoutout in Live", description: "Menzione dedicata durante la live", points: "500" },
+  { name: "🎵 Scegli la prossima song", description: "Lo spettatore decide la prossima canzone", points: "800" },
+  { name: "💚 Messaggio in evidenza", description: "Messaggio pinnato e letto in live", points: "300" }
+];
 
 export default function App() {
   const [page, setPage] = useState("login");
@@ -281,7 +287,17 @@ export default function App() {
   const [msgs, setMsgs] = useState([{ r: "ai", t: "Ciao! 👋 Sono il tuo assistente AI per KickLoyalty. Chiedimi idee per rewards, strategie di engagement o come usare al meglio la piattaforma!" }]);
   const [aiIn, setAiIn] = useState("");
   const [aiLoad, setAiLoad] = useState(false);
+  const [cookieConsent, setCookieConsent] = useState(null);
   const msgsEl = useRef(null);
+
+  const trackKpiEvent = useCallback((event, properties = {}) => {
+    if (localStorage.getItem(CONSENT_KEY) !== "accepted") return;
+    fetch(`${API_URL}/telemetry/events`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, source: "app", properties })
+    }).catch(() => {});
+  }, []);
 
   const applyAuthSession = useCallback((authToken, authUser) => {
     if (!authToken || !authUser) return;
@@ -297,6 +313,7 @@ export default function App() {
 
   useEffect(() => { if (tab === "analytics") setTimeout(() => setBarsOn(true), 120); else setBarsOn(false); }, [tab]);
   useEffect(() => { if (msgsEl.current) msgsEl.current.scrollTop = msgsEl.current.scrollHeight; }, [msgs]);
+  useEffect(() => { setCookieConsent(localStorage.getItem(CONSENT_KEY)); }, []);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("kickloyalty_token") || localStorage.getItem("token");
@@ -402,6 +419,7 @@ export default function App() {
       const res = await axios.post(`${API_URL}/auth/login`, { username: uname.trim() });
       setUser(res.data.user);
       applyAuthSession(res.data.token, res.data.user);
+      trackKpiEvent("login_success", { method: "username" });
       setPage("app");
       setTab("dashboard");
       loadData(res.data.user);
@@ -425,6 +443,7 @@ export default function App() {
   const handleUpgrade = async () => {
     if (!user?.id) return;
     setUpgradeLoading(true);
+    trackKpiEvent("upgrade_clicked", { plan: "pro" });
     try {
       const res = await axios.post(`${API_URL}/stripe/create-checkout`, { userId: user.id });
       window.location.href = res.data.url;
@@ -449,6 +468,7 @@ export default function App() {
       );
       setRewards(rs => [res.data, ...rs]);
       setModal(false); setNewR({ name: "", description: "", points: "" });
+      trackKpiEvent("reward_created", { points: parseInt(newR.points), type: "custom" });
       toast$("🎁 Reward creato!");
     } catch (e) {
       const msg = e?.response?.data?.error || e?.message || "Errore nella creazione";
@@ -642,6 +662,13 @@ export default function App() {
                   {[["⭐","Rewards Personalizzati"],["📊","Analytics Real-time"],["🤖","AI Assistant"]].map(([i,l])=>(
                     <div className="chip" key={l}><span className="chip-icon">{i}</span><span>{l}</span></div>
                   ))}
+                </div>
+                <div style={{marginTop:14,textAlign:"center",fontSize:12,color:"var(--muted)"}}>
+                  <a href="/privacy.html" target="_blank" rel="noreferrer" style={{color:"var(--muted)"}}>Privacy Policy</a>
+                  <span style={{margin:"0 8px"}}>·</span>
+                  <a href="/terms.html" target="_blank" rel="noreferrer" style={{color:"var(--muted)"}}>Termini di Servizio</a>
+                  <span style={{margin:"0 8px"}}>·</span>
+                  <a href="mailto:info@kickloyalty.com" style={{color:"var(--muted)"}}>Supporto</a>
                 </div>
               </div>
             </div>
@@ -963,6 +990,19 @@ export default function App() {
                 <div className="modal">
                   <div className="modal-handle"/>
                   <h3>➕ Nuovo Reward</h3>
+                  <div className="field-lbl">Template Rapidi</div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
+                    {rewardTemplates.map((tpl) => (
+                      <button
+                        key={tpl.name}
+                        type="button"
+                        className="ai-chip"
+                        onClick={() => setNewR({ name: tpl.name, description: tpl.description, points: tpl.points })}
+                      >
+                        {tpl.name}
+                      </button>
+                    ))}
+                  </div>
                   <div className="field-lbl">Nome</div>
                   <input className="field" placeholder="es. 🎯 Shoutout in Live" value={newR.name} onChange={e=>setNewR(p=>({...p,name:e.target.value}))} />
                   <div className="field-lbl">Descrizione</div>
@@ -997,6 +1037,19 @@ export default function App() {
               </div>
             )}
           </>
+        )}
+
+        {!cookieConsent && (
+          <div style={{position:"fixed",left:16,right:16,bottom:16,zIndex:1200,background:"var(--s1)",border:"1px solid var(--border2)",borderRadius:12,padding:12,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+            <div style={{fontSize:12,color:"var(--muted2)",lineHeight:1.4}}>
+              Usiamo cookie tecnici e analytics per migliorare il prodotto.
+              <a href="/privacy.html" target="_blank" rel="noreferrer" style={{color:"var(--g)",marginLeft:6}}>Leggi privacy</a>
+            </div>
+            <div style={{display:"flex",gap:8,flexShrink:0}}>
+              <button className="btn-ghost" style={{margin:0,padding:"8px 10px"}} onClick={()=>{localStorage.setItem(CONSENT_KEY,"rejected");setCookieConsent("rejected");}}>Rifiuta</button>
+              <button className="btn-g" style={{margin:0,padding:"8px 10px",width:"auto"}} onClick={()=>{localStorage.setItem(CONSENT_KEY,"accepted");setCookieConsent("accepted");trackKpiEvent("consent_accepted");}}>Accetta</button>
+            </div>
+          </div>
         )}
       </div>
     </>

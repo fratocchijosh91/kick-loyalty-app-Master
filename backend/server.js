@@ -454,6 +454,39 @@ app.post('/api/ai/chat', aiLimiter, async (req, res) => {
   }
 });
 
+// KPI telemetry events (conversion funnel, onboarding, feature adoption)
+app.post('/api/telemetry/events', [
+  body('event').trim().isLength({ min: 1, max: 80 }),
+  body('source').optional().trim().isLength({ max: 40 }),
+  body('properties').optional().isObject()
+], validate, async (req, res) => {
+  const { event, source = 'web', properties = {} } = req.body;
+
+  const telemetryRecord = {
+    event,
+    source,
+    properties,
+    userAgent: req.headers['user-agent'] || null,
+    ip: req.ip,
+    createdAt: new Date()
+  };
+
+  try {
+    if (mongoose.connection.readyState === 1) {
+      await mongoose.connection.collection('telemetry_events').insertOne(telemetryRecord);
+    } else {
+      if (!global.telemetryEvents) global.telemetryEvents = [];
+      global.telemetryEvents.push(telemetryRecord);
+      if (global.telemetryEvents.length > 2000) {
+        global.telemetryEvents = global.telemetryEvents.slice(-2000);
+      }
+    }
+    return res.json({ success: true });
+  } catch (error) {
+    return res.status(500).json({ error: 'Telemetry ingest failed' });
+  }
+});
+
 // ==================== ROUTE PUBBLICHE API (prima dei router protetti) ====================
 
 const getOwnedRewardQuery = (userId) => ({
