@@ -57,6 +57,7 @@ const PORT = process.env.PORT || 5000;
 const SERVER_STARTED_AT = Date.now();
 const JWT_SECRET =
   process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev_fallback_secret_change_me');
+const processedStripeEvents = new Map();
 
 const KICK_CLIENT_ID = process.env.KICK_CLIENT_ID;
 const KICK_CLIENT_SECRET = process.env.KICK_CLIENT_SECRET;
@@ -92,6 +93,8 @@ app.set('io', io);
 // Webhook Stripe deve essere PRIMA di express.json()
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
+  if (!sig) return res.status(400).json({ error: 'Missing stripe-signature header' });
+
   let event;
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET);
@@ -100,30 +103,53 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const userId = session.metadata?.userId;
-    if (userId && mongoose.connection.readyState === 1) {
-      await User.findByIdAndUpdate(userId, {
-        plan: 'pro',
-        stripeCustomerId: session.customer,
-        stripeSubscriptionId: session.subscription
-      });
-      console.log('âœ… Piano Pro attivato per utente:', userId);
+  // Stripe may retry events; ignore duplicates for 24h.
+  const eventId = event.id;
+  const alreadyProcessedAt = processedStripeEvents.get(eventId);
+  if (alreadyProcessedAt) {
+    return res.json({ received: true, duplicate: true });
+  }
+  processedStripeEvents.set(eventId, Date.now());
+
+  try {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const userId = session.metadata?.userId;
+      if (userId && mongoose.connection.readyState === 1) {
+        await User.findByIdAndUpdate(userId, {
+          plan: 'pro',
+          stripeCustomerId: session.customer,
+          stripeSubscriptionId: session.subscription
+        });
+        console.log('âœ… Piano Pro attivato per utente:', userId);
+      }
+    }
+
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object;
+      if (mongoose.connection.readyState === 1) {
+        await User.findOneAndUpdate(
+          { stripeSubscriptionId: subscription.id },
+          { plan: 'free', stripeSubscriptionId: null }
+        );
+      }
+    }
+
+    return res.json({ received: true });
+  } catch (err) {
+    // Allow retries for failed processing.
+    processedStripeEvents.delete(eventId);
+    console.error('Stripe webhook handling error:', err.message);
+    return res.status(500).json({ error: 'Webhook handling failed' });
+  } finally {
+    // Keep dedupe map bounded in memory.
+    if (processedStripeEvents.size > 10000) {
+      const now = Date.now();
+      for (const [id, ts] of processedStripeEvents.entries()) {
+        if (now - ts > 24 * 60 * 60 * 1000) processedStripeEvents.delete(id);
+      }
     }
   }
-
-  if (event.type === 'customer.subscription.deleted') {
-    const subscription = event.data.object;
-    if (mongoose.connection.readyState === 1) {
-      await User.findOneAndUpdate(
-        { stripeSubscriptionId: subscription.id },
-        { plan: 'free', stripeSubscriptionId: null }
-      );
-    }
-  }
-
-  res.json({ received: true });
 });
 
 // Middleware
