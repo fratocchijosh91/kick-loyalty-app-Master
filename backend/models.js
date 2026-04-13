@@ -162,6 +162,9 @@ const userSchema = new mongoose.Schema({
     customDomain: { type: Boolean, default: false }
   },
 
+  // Piattaforma: accesso a metriche/telemetry interne (impostabile solo da DB/admin)
+  platformAdmin: { type: Boolean, default: false, index: true },
+
   createdAt: { type: Date, default: Date.now },
   lastLogin: { type: Date, default: Date.now },
   deletedAt: { type: Date } // Soft delete

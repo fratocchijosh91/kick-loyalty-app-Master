@@ -44,7 +44,15 @@ const checkReadiness = async () => {
 };
 
 const checkTelemetrySummary = async () => {
-  const summaryRes = await fetch(`${baseUrl}/telemetry/summary?days=${CHECK_DAYS}`);
+  const adminSecret = process.env.TELEMETRY_ADMIN_SECRET;
+  if (!adminSecret) {
+    throw new Error(
+      "TELEMETRY_ADMIN_SECRET is required to validate /telemetry/summary (add it to GitHub Actions secrets)"
+    );
+  }
+  const summaryRes = await fetch(`${baseUrl}/telemetry/summary?days=${CHECK_DAYS}`, {
+    headers: { Authorization: `Bearer ${adminSecret}` }
+  });
   const summary = await assertOk(summaryRes, "telemetry-summary");
   if (typeof summary.totalEvents !== "number" || !summary.funnel || !summary.rates) {
     throw new Error(`telemetry summary shape invalid: ${JSON.stringify(summary)}`);

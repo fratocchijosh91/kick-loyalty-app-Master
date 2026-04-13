@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const axios = require('axios');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -103,13 +104,42 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Stripe may retry events; ignore duplicates for 24h.
   const eventId = event.id;
-  const alreadyProcessedAt = processedStripeEvents.get(eventId);
-  if (alreadyProcessedAt) {
+
+  const markStripeEventOnce = async () => {
+    if (mongoose.connection.readyState !== 1) return true;
+    try {
+      await mongoose.connection.collection('stripe_webhook_events').insertOne({
+        _id: eventId,
+        type: event.type,
+        receivedAt: new Date()
+      });
+      return true;
+    } catch (e) {
+      if (e && e.code === 11000) return false;
+      throw e;
+    }
+  };
+
+  let firstTime = true;
+  if (mongoose.connection.readyState === 1) {
+    try {
+      firstTime = await markStripeEventOnce();
+    } catch (e) {
+      console.error('Stripe idempotency insert error:', e.message);
+      return res.status(500).json({ error: 'Webhook persistence failed' });
+    }
+  } else {
+    const alreadyProcessedAt = processedStripeEvents.get(eventId);
+    if (alreadyProcessedAt) {
+      return res.json({ received: true, duplicate: true });
+    }
+    processedStripeEvents.set(eventId, Date.now());
+  }
+
+  if (!firstTime) {
     return res.json({ received: true, duplicate: true });
   }
-  processedStripeEvents.set(eventId, Date.now());
 
   try {
     if (event.type === 'checkout.session.completed') {
@@ -135,10 +165,25 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
       }
     }
 
+    if (event.type === 'customer.subscription.updated') {
+      const subscription = event.data.object;
+      if (mongoose.connection.readyState === 1) {
+        const active = subscription.status === 'active' || subscription.status === 'trialing';
+        await User.findOneAndUpdate(
+          { stripeSubscriptionId: subscription.id },
+          { plan: active ? 'pro' : 'free' }
+        );
+      }
+    }
+
     return res.json({ received: true });
   } catch (err) {
     // Allow retries for failed processing.
-    processedStripeEvents.delete(eventId);
+    if (mongoose.connection.readyState === 1) {
+      await mongoose.connection.collection('stripe_webhook_events').deleteOne({ _id: eventId }).catch(() => {});
+    } else {
+      processedStripeEvents.delete(eventId);
+    }
     console.error('Stripe webhook handling error:', err.message);
     return res.status(500).json({ error: 'Webhook handling failed' });
   } finally {
@@ -183,6 +228,12 @@ const aiLimiter = rateLimit({
   message: { error: 'Troppe richieste AI, riprova tra un minuto.' }
 });
 
+const telemetryIngestLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  message: { error: 'Troppe richieste telemetry, riprova tra un minuto.' }
+});
+
 // Helper validazione
 const validate = (req, res, next) => {
   const errors = validationResult(req);
@@ -207,6 +258,50 @@ const connectDB = async () => {
 const User = UserModel;
 const Reward = RewardModel;
 const ViewerPoints = ViewerPointsModel;
+
+const assertTelemetrySummaryAccess = async (req, res, next) => {
+  if (process.env.TELEMETRY_SUMMARY_OPEN === 'true') {
+    return next();
+  }
+
+  const authHeader = req.headers.authorization || '';
+  const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  if (!bearer) {
+    return res.status(401).json({ error: 'Autenticazione richiesta', code: 'TELEMETRY_AUTH' });
+  }
+
+  if (process.env.TELEMETRY_ADMIN_SECRET && bearer === process.env.TELEMETRY_ADMIN_SECRET) {
+    return next();
+  }
+
+  if (!JWT_SECRET) {
+    return res.status(500).json({ error: 'JWT non configurato' });
+  }
+
+  try {
+    const decoded = jwt.verify(bearer, JWT_SECRET);
+    const uName = String(decoded.username || '').toLowerCase();
+    const allowList = (process.env.TELEMETRY_ADMIN_USERNAMES || '')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (allowList.length > 0 && allowList.includes(uName)) {
+      return next();
+    }
+
+    if (mongoose.connection.readyState === 1) {
+      const u = await User.findById(decoded.id).lean();
+      if (u && u.platformAdmin) {
+        return next();
+      }
+    }
+
+    return res.status(403).json({ error: 'Accesso negato', code: 'TELEMETRY_FORBIDDEN' });
+  } catch {
+    return res.status(403).json({ error: 'Token non valido', code: 'TELEMETRY_FORBIDDEN' });
+  }
+};
 
 let mockRewards = [
   { id: '1', name: 'Welcome Bonus', description: '100 punti di benvenuto', points: 100, type: 'bonus', active: true },
@@ -455,7 +550,7 @@ app.post('/api/ai/chat', aiLimiter, async (req, res) => {
 });
 
 // KPI telemetry events (conversion funnel, onboarding, feature adoption)
-app.post('/api/telemetry/events', [
+app.post('/api/telemetry/events', telemetryIngestLimiter, [
   body('event').trim().isLength({ min: 1, max: 80 }),
   body('source').optional().trim().isLength({ max: 40 }),
   body('properties').optional().isObject()
@@ -487,7 +582,7 @@ app.post('/api/telemetry/events', [
   }
 });
 
-app.get('/api/telemetry/summary', async (req, res) => {
+app.get('/api/telemetry/summary', assertTelemetrySummaryAccess, async (req, res) => {
   const sinceDays = Math.min(90, Math.max(1, parseInt(req.query.days || '7', 10)));
   const sinceDate = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
 

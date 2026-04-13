@@ -29,6 +29,7 @@ jobs:
       - name: Run release checks
         env:
           SMOKE_API_URL: ${{ secrets.SMOKE_API_URL }}
+          TELEMETRY_ADMIN_SECRET: ${{ secrets.TELEMETRY_ADMIN_SECRET }}
         run: npm run release:check
 
       - name: Notify webhook on failure

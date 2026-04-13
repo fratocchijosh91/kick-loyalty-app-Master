@@ -248,6 +248,14 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 const CONSENT_KEY = "kickloyalty_cookie_consent";
+const CONSENT_ANALYTICS_KEY = "kickloyalty_analytics";
+
+const isAnalyticsConsentGranted = () => {
+  const v = localStorage.getItem(CONSENT_KEY);
+  if (v === "all" || v === "accepted") return true;
+  if (v === "necessary" || v === "rejected") return false;
+  return localStorage.getItem(CONSENT_ANALYTICS_KEY) === "1";
+};
 const rewardTemplates = [
   { name: "🎯 Shoutout in Live", description: "Menzione dedicata durante la live", points: "500" },
   { name: "🎵 Scegli la prossima song", description: "Lo spettatore decide la prossima canzone", points: "800" },
@@ -292,7 +300,7 @@ export default function App() {
   const msgsEl = useRef(null);
 
   const trackKpiEvent = useCallback((event, properties = {}) => {
-    if (localStorage.getItem(CONSENT_KEY) !== "accepted") return;
+    if (!isAnalyticsConsentGranted()) return;
     fetch(`${API_URL}/telemetry/events`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -314,7 +322,10 @@ export default function App() {
 
   useEffect(() => { if (tab === "analytics") setTimeout(() => setBarsOn(true), 120); else setBarsOn(false); }, [tab]);
   useEffect(() => { if (msgsEl.current) msgsEl.current.scrollTop = msgsEl.current.scrollHeight; }, [msgs]);
-  useEffect(() => { setCookieConsent(localStorage.getItem(CONSENT_KEY)); }, []);
+  useEffect(() => {
+    const c = localStorage.getItem(CONSENT_KEY);
+    setCookieConsent(c || null);
+  }, []);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("kickloyalty_token") || localStorage.getItem("token");
@@ -673,7 +684,9 @@ export default function App() {
                   <span style={{margin:"0 8px"}}>·</span>
                   <a href="/terms.html" target="_blank" rel="noreferrer" style={{color:"var(--muted)"}}>Termini di Servizio</a>
                   <span style={{margin:"0 8px"}}>·</span>
-                  <a href="mailto:info@kickloyalty.com" style={{color:"var(--muted)"}}>Supporto</a>
+                  <a href="/support.html" target="_blank" rel="noreferrer" style={{color:"var(--muted)"}}>Supporto</a>
+                  <span style={{margin:"0 8px"}}>·</span>
+                  <a href="mailto:info@kickloyalty.com" style={{color:"var(--muted)"}}>Email</a>
                 </div>
               </div>
             </div>
@@ -1077,14 +1090,25 @@ export default function App() {
         )}
 
         {!cookieConsent && (
-          <div style={{position:"fixed",left:16,right:16,bottom:16,zIndex:1200,background:"var(--s1)",border:"1px solid var(--border2)",borderRadius:12,padding:12,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <div style={{position:"fixed",left:16,right:16,bottom:16,zIndex:1200,background:"var(--s1)",border:"1px solid var(--border2)",borderRadius:12,padding:12,display:"flex",flexDirection:"column",gap:10}}>
             <div style={{fontSize:12,color:"var(--muted2)",lineHeight:1.4}}>
-              Usiamo cookie tecnici e analytics per migliorare il prodotto.
-              <a href="/privacy.html" target="_blank" rel="noreferrer" style={{color:"var(--g)",marginLeft:6}}>Leggi privacy</a>
+              Cookie necessari per il funzionamento. Gli analytics sono opzionali e servono a migliorare il prodotto.
+              <a href="/privacy.html" target="_blank" rel="noreferrer" style={{color:"var(--g)",marginLeft:6}}>Privacy</a>
+              {" · "}
+              <a href="/support.html" target="_blank" rel="noreferrer" style={{color:"var(--g)"}}>Supporto</a>
             </div>
-            <div style={{display:"flex",gap:8,flexShrink:0}}>
-              <button className="btn-ghost" style={{margin:0,padding:"8px 10px"}} onClick={()=>{localStorage.setItem(CONSENT_KEY,"rejected");setCookieConsent("rejected");}}>Rifiuta</button>
-              <button className="btn-g" style={{margin:0,padding:"8px 10px",width:"auto"}} onClick={()=>{localStorage.setItem(CONSENT_KEY,"accepted");setCookieConsent("accepted");trackKpiEvent("consent_accepted");}}>Accetta</button>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"flex-end"}}>
+              <button className="btn-ghost" style={{margin:0,padding:"8px 10px"}} onClick={()=>{
+                localStorage.setItem(CONSENT_KEY,"necessary");
+                localStorage.setItem(CONSENT_ANALYTICS_KEY,"0");
+                setCookieConsent("necessary");
+              }}>Solo necessari</button>
+              <button className="btn-g" style={{margin:0,padding:"8px 10px",width:"auto"}} onClick={()=>{
+                localStorage.setItem(CONSENT_KEY,"all");
+                localStorage.setItem(CONSENT_ANALYTICS_KEY,"1");
+                setCookieConsent("all");
+                trackKpiEvent("consent_accepted");
+              }}>Accetta analytics</button>
             </div>
           </div>
         )}
