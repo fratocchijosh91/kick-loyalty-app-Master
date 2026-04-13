@@ -487,6 +487,54 @@ app.post('/api/telemetry/events', [
   }
 });
 
+app.get('/api/telemetry/summary', async (req, res) => {
+  const sinceDays = Math.min(90, Math.max(1, parseInt(req.query.days || '7', 10)));
+  const sinceDate = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
+
+  try {
+    let events = [];
+    if (mongoose.connection.readyState === 1) {
+      events = await mongoose.connection
+        .collection('telemetry_events')
+        .find({ createdAt: { $gte: sinceDate } })
+        .toArray();
+    } else {
+      events = (global.telemetryEvents || []).filter((e) => new Date(e.createdAt) >= sinceDate);
+    }
+
+    const counts = events.reduce((acc, evt) => {
+      acc[evt.event] = (acc[evt.event] || 0) + 1;
+      return acc;
+    }, {});
+
+    const consentAccepted = counts.consent_accepted || 0;
+    const ctaClicked = counts.cta_clicked || 0;
+    const loginSuccess = counts.login_success || 0;
+    const rewardCreated = counts.reward_created || 0;
+    const upgradeClicked = counts.upgrade_clicked || 0;
+
+    return res.json({
+      sinceDays,
+      totalEvents: events.length,
+      counts,
+      funnel: {
+        consentAccepted,
+        ctaClicked,
+        loginSuccess,
+        rewardCreated,
+        upgradeClicked
+      },
+      rates: {
+        ctaToLogin: ctaClicked > 0 ? Number((loginSuccess / ctaClicked).toFixed(3)) : 0,
+        loginToReward: loginSuccess > 0 ? Number((rewardCreated / loginSuccess).toFixed(3)) : 0,
+        rewardToUpgradeClick: rewardCreated > 0 ? Number((upgradeClicked / rewardCreated).toFixed(3)) : 0
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: 'Telemetry summary failed' });
+  }
+});
+
 // ==================== ROUTE PUBBLICHE API (prima dei router protetti) ====================
 
 const getOwnedRewardQuery = (userId) => ({

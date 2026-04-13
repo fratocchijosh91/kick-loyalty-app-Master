@@ -263,6 +263,7 @@ export default function App() {
   const [rewards, setRewards] = useState([]);
   const [stats, setStats] = useState(null);
   const [analytics, setAnalytics] = useState(null);
+  const [telemetrySummary, setTelemetrySummary] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [modal, setModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
@@ -385,6 +386,10 @@ export default function App() {
       setRewards(rRes.data);
       setStats(sRes.data);
       setAnalytics(aRes.data);
+      try {
+        const tRes = await axios.get(`${API_URL}/telemetry/summary?days=7`);
+        setTelemetrySummary(tRes.data);
+      } catch (e) {}
       // Load leaderboard
       try {
         const lRes = await axios.get(`${API_URL}/viewer-points/leaderboard/${currentUser.username}`);
@@ -806,6 +811,38 @@ export default function App() {
                       <div style={{fontSize:13,color:"var(--muted)",animation:"fadeUp 0.4s 0.05s ease both"}}>Statistiche e metriche reali del tuo sistema loyalty</div>
                     </div>
                     <div className="analytics-grid">
+                      <div className="panel" style={{animationDelay:"0.02s"}}>
+                        <div className="panel-title">🎯 Conversion Funnel (7g)</div>
+                        <div className="top-list">
+                          {[
+                            ["Consensi", telemetrySummary?.funnel?.consentAccepted || 0],
+                            ["CTA Click", telemetrySummary?.funnel?.ctaClicked || 0],
+                            ["Login", telemetrySummary?.funnel?.loginSuccess || 0],
+                            ["Reward Creati", telemetrySummary?.funnel?.rewardCreated || 0],
+                            ["Upgrade Click", telemetrySummary?.funnel?.upgradeClicked || 0]
+                          ].map(([label, value]) => (
+                            <div className="top-row" key={label}>
+                              <span className="top-name">{label}</span>
+                              <span className="top-cnt">{Number(value).toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="panel" style={{animationDelay:"0.04s"}}>
+                        <div className="panel-title">📐 Tassi Conversione</div>
+                        <div className="top-list">
+                          {[
+                            ["CTA → Login", telemetrySummary?.rates?.ctaToLogin || 0],
+                            ["Login → Reward", telemetrySummary?.rates?.loginToReward || 0],
+                            ["Reward → Upgrade click", telemetrySummary?.rates?.rewardToUpgradeClick || 0]
+                          ].map(([label, value]) => (
+                            <div className="top-row" key={label}>
+                              <span className="top-name">{label}</span>
+                              <span className="top-cnt">{`${(Number(value) * 100).toFixed(1)}%`}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                       <div className="panel" style={{animationDelay:"0.05s"}}>
                         <div className="panel-title">📊 Nuovi Utenti per Mese</div>
                         <div className="bar-chart">
