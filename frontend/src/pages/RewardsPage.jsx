@@ -48,7 +48,8 @@ const RewardsPage = () => {
         active: true
       };
 
-      const token = localStorage.getItem('kickloyalty_token');
+      const token =
+        localStorage.getItem('kickloyalty_token') || localStorage.getItem('token');
       const headers = {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` })

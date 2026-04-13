@@ -243,6 +243,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); c
 `;
 
 let rid = 20;
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("kickloyalty_token") || localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export default function App() {
   const [page, setPage] = useState("login");
@@ -279,11 +283,39 @@ export default function App() {
   const [aiLoad, setAiLoad] = useState(false);
   const msgsEl = useRef(null);
 
+  const applyAuthSession = useCallback((authToken, authUser) => {
+    if (!authToken || !authUser) return;
+    axios.defaults.headers.common.Authorization = `Bearer ${authToken}`;
+    localStorage.setItem("kickloyalty_token", authToken);
+    localStorage.setItem("token", authToken);
+    localStorage.setItem("kickloyalty_user", JSON.stringify(authUser));
+    localStorage.setItem("user", JSON.stringify(authUser));
+  }, []);
+
   const toast$ = useCallback((m) => { setToast(m); setTimeout(() => setToast(""), 2800); }, []);
   const notif$ = useCallback((m) => { setNotif(m); setTimeout(() => setNotif(""), 5000); }, []);
 
   useEffect(() => { if (tab === "analytics") setTimeout(() => setBarsOn(true), 120); else setBarsOn(false); }, [tab]);
   useEffect(() => { if (msgsEl.current) msgsEl.current.scrollTop = msgsEl.current.scrollHeight; }, [msgs]);
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem("kickloyalty_token") || localStorage.getItem("token");
+    const savedUserRaw = localStorage.getItem("kickloyalty_user") || localStorage.getItem("user");
+    if (!savedToken || !savedUserRaw) return;
+
+    try {
+      const savedUser = JSON.parse(savedUserRaw);
+      setUser(savedUser);
+      setPage("app");
+      applyAuthSession(savedToken, savedUser);
+      loadData(savedUser);
+    } catch {
+      localStorage.removeItem("kickloyalty_token");
+      localStorage.removeItem("token");
+      localStorage.removeItem("kickloyalty_user");
+      localStorage.removeItem("user");
+    }
+  }, [applyAuthSession]);
 
   // Check URL params
   useEffect(() => {
@@ -305,7 +337,13 @@ export default function App() {
     if (code) {
       setLoading(true);
       axios.post(`${API_URL}/auth/kick/callback`, { code, state })
-        .then(res => { setUser(res.data.user); setPage("app"); loadData(res.data.user); window.history.replaceState({}, "", "/"); })
+        .then(res => {
+          setUser(res.data.user);
+          applyAuthSession(res.data.token, res.data.user);
+          setPage("app");
+          loadData(res.data.user);
+          window.history.replaceState({}, "", "/");
+        })
         .catch(err => alert("Errore login: " + err.message))
         .finally(() => setLoading(false));
     }
@@ -363,6 +401,7 @@ export default function App() {
     try {
       const res = await axios.post(`${API_URL}/auth/login`, { username: uname.trim() });
       setUser(res.data.user);
+      applyAuthSession(res.data.token, res.data.user);
       setPage("app");
       setTab("dashboard");
       loadData(res.data.user);
@@ -370,7 +409,18 @@ export default function App() {
     finally { setLoading(false); }
   };
 
-  const logout = () => { setUser(null); setPage("login"); setUname(""); setRewards([]); setStats(null); };
+  const logout = () => {
+    setUser(null);
+    setPage("login");
+    setUname("");
+    setRewards([]);
+    setStats(null);
+    delete axios.defaults.headers.common.Authorization;
+    localStorage.removeItem("kickloyalty_token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("kickloyalty_user");
+    localStorage.removeItem("user");
+  };
 
   const handleUpgrade = async () => {
     if (!user?.id) return;
@@ -392,17 +442,28 @@ export default function App() {
   const createReward = async () => {
     if (!newR.name || !newR.points) return;
     try {
-      const res = await axios.post(`${API_URL}/rewards`, { ...newR, points: parseInt(newR.points), active: true, type: "custom" });
+      const res = await axios.post(
+        `${API_URL}/rewards`,
+        { ...newR, points: parseInt(newR.points), active: true, type: "custom" },
+        { headers: getAuthHeaders() }
+      );
       setRewards(rs => [res.data, ...rs]);
       setModal(false); setNewR({ name: "", description: "", points: "" });
       toast$("🎁 Reward creato!");
-    } catch (e) { toast$("❌ Errore nella creazione"); }
+    } catch (e) {
+      const msg = e?.response?.data?.error || e?.message || "Errore nella creazione";
+      toast$(`❌ ${msg}`);
+    }
   };
 
   const updateReward = async () => {
     if (!editModal) return;
     try {
-      const res = await axios.put(`${API_URL}/rewards/${editModal.id || editModal._id}`, editModal);
+      const res = await axios.put(
+        `${API_URL}/rewards/${editModal.id || editModal._id}`,
+        editModal,
+        { headers: getAuthHeaders() }
+      );
       setRewards(rs => rs.map(r => (r.id || r._id) === (editModal.id || editModal._id) ? res.data : r));
       setEditModal(null); toast$("✅ Reward aggiornato!");
     } catch (e) { toast$("❌ Errore nell'aggiornamento"); }
@@ -411,7 +472,11 @@ export default function App() {
   const toggleR = async (r) => {
     try {
       const id = r.id || r._id;
-      const res = await axios.put(`${API_URL}/rewards/${id}`, { ...r, active: !r.active });
+      const res = await axios.put(
+        `${API_URL}/rewards/${id}`,
+        { ...r, active: !r.active },
+        { headers: getAuthHeaders() }
+      );
       setRewards(rs => rs.map(x => (x.id || x._id) === id ? res.data : x));
     } catch (e) {}
   };
@@ -419,7 +484,7 @@ export default function App() {
   const delR = async (id) => {
     if (!confirm("Elimina questo reward?")) return;
     try {
-      await axios.delete(`${API_URL}/rewards/${id}`);
+      await axios.delete(`${API_URL}/rewards/${id}`, { headers: getAuthHeaders() });
       setRewards(rs => rs.filter(r => (r.id || r._id) !== id));
       toast$("🗑️ Reward eliminato!");
     } catch (e) {}

@@ -11,8 +11,11 @@ export const AuthProvider = ({ children }) => {
 
   // Load token from localStorage on mount
   useEffect(() => {
-    const savedToken = localStorage.getItem('kickloyalty_token');
-    const savedUser = localStorage.getItem('kickloyalty_user');
+    // Backward compatibility: some pages still read legacy keys.
+    const savedToken =
+      localStorage.getItem('kickloyalty_token') || localStorage.getItem('token');
+    const savedUser =
+      localStorage.getItem('kickloyalty_user') || localStorage.getItem('user');
 
     if (savedToken && savedUser) {
       setToken(savedToken);
@@ -38,6 +41,9 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('kickloyalty_token', newToken);
       localStorage.setItem('kickloyalty_user', JSON.stringify(userData));
+      // Keep legacy keys in sync for older components.
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(userData));
 
       axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
 
@@ -65,6 +71,9 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('kickloyalty_token', newToken);
       localStorage.setItem('kickloyalty_user', JSON.stringify(userData));
+      // Keep legacy keys in sync for older components.
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(userData));
 
       axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
 
@@ -83,6 +92,8 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('kickloyalty_token');
     localStorage.removeItem('kickloyalty_user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
   };
 
