@@ -8,7 +8,8 @@
     "start": "cd backend && npm start",
     "build": "cd backend && npm run build || true",
     "test": "cd backend && npm test",
-    "smoke": "node scripts/smoke-check.mjs"
+    "smoke": "node scripts/smoke-check.mjs",
+    "release:check": "node scripts/release-check.mjs"
   },
   "engines": {
     "node": "18.x"
