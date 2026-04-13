@@ -54,6 +54,9 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 5000;
+const SERVER_STARTED_AT = Date.now();
+const JWT_SECRET =
+  process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev_fallback_secret_change_me');
 
 const KICK_CLIENT_ID = process.env.KICK_CLIENT_ID;
 const KICK_CLIENT_SECRET = process.env.KICK_CLIENT_SECRET;
@@ -63,6 +66,10 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://kick-loyalty-app.verce
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
+
+if (!JWT_SECRET) {
+  console.error('JWT_SECRET non configurato in produzione');
+}
 
 // Socket.io - gestione connessioni
 io.on('connection', (socket) => {
@@ -186,7 +193,45 @@ global.oauthSessions = {};
 // ==================== ROUTES PUBBLICHE (prima dei router protetti) ====================
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running!' });
+  const dbStateByCode = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+
+  const dbStateCode = mongoose.connection.readyState;
+  const dbState = dbStateByCode[dbStateCode] || 'unknown';
+  const uptimeSec = Math.floor((Date.now() - SERVER_STARTED_AT) / 1000);
+  const hasJwtSecret = Boolean(process.env.JWT_SECRET);
+
+  const health = {
+    status: dbState === 'connected' || !process.env.MONGODB_URI ? 'ok' : 'degraded',
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    uptimeSec,
+    environment: process.env.NODE_ENV || 'development',
+    version: process.env.npm_package_version || 'unknown',
+    checks: {
+      database: dbState,
+      jwtConfigured: hasJwtSecret
+    }
+  };
+
+  const statusCode = health.status === 'ok' ? 200 : 503;
+  res.status(statusCode).json(health);
+});
+
+app.get('/api/health/ready', (req, res) => {
+  const dbConnected = mongoose.connection.readyState === 1;
+  if (process.env.MONGODB_URI && !dbConnected) {
+    return res.status(503).json({
+      status: 'not_ready',
+      reason: 'database_not_connected'
+    });
+  }
+
+  return res.json({ status: 'ready' });
 });
 
 // STEP 1 - Genera URL OAuth Kick con PKCE
@@ -264,10 +309,14 @@ app.post('/api/auth/kick/callback', authLimiter, async (req, res) => {
       user = { _id: 'mock_' + username, kickUsername: username.toLowerCase(), kickDisplayName: displayName, plan: 'free' };
     }
 
+    if (!JWT_SECRET) {
+      return res.status(500).json({ error: 'JWT non configurato sul server' });
+    }
+
     const jwt = require('jsonwebtoken');
     const token = jwt.sign(
       { id: user._id, username: user.kickUsername },
-      process.env.JWT_SECRET || 'fallback_secret_change_me',
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
     res.json({
@@ -320,10 +369,14 @@ app.post('/api/auth/login', authLimiter, [
       user = { _id: 'mock_' + username, kickUsername: username.toLowerCase(), kickDisplayName: username, plan: 'free' };
     }
 
+    if (!JWT_SECRET) {
+      return res.status(500).json({ error: 'JWT non configurato sul server' });
+    }
+
     const jwt = require('jsonwebtoken');
     const token = jwt.sign(
       { id: user._id, username: user.kickUsername },
-      process.env.JWT_SECRET || 'fallback_secret_change_me',
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
     res.json({

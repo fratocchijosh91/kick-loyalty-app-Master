@@ -6,6 +6,13 @@
 const jwt = require('jsonwebtoken');
 const { User, Organization, TeamMember, SubscriptionPlan, UsageRecord } = require('./models');
 
+const getJwtSecret = () => {
+  const configuredSecret = process.env.JWT_SECRET;
+  if (configuredSecret) return configuredSecret;
+  if (process.env.NODE_ENV === 'production') return null;
+  return 'dev_fallback_secret_change_me';
+};
+
 // ==================== AUTHENTICATION ====================
 /**
  * Enhanced JWT middleware with organization context
@@ -20,7 +27,15 @@ const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_change_me');
+    const jwtSecret = getJwtSecret();
+    if (!jwtSecret) {
+      return res.status(500).json({
+        error: 'Server auth non configurato',
+        code: 'JWT_MISCONFIGURED'
+      });
+    }
+
+    const decoded = jwt.verify(token, jwtSecret);
     req.user = decoded;
 
     // Carica user dal DB se disponibile
