@@ -54,21 +54,26 @@ const RewardsPage = () => {
         ...(token && { 'Authorization': `Bearer ${token}` })
       };
       
+      let response;
       if (editingId) {
         // Update
-        const response = await fetch(`${API_URL}/rewards/${editingId}`, {
+        const res = await fetch(`${API_URL}/rewards/${editingId}`, {
           method: 'PUT',
           headers,
           body: JSON.stringify(payload)
-        }).then(r => r.json());
+        });
+        if (!res.ok) throw new Error(`Errore ${res.status}: ${await res.text()}`);
+        response = await res.json();
         setRewards(rewards.map(r => r._id === editingId ? response : r));
       } else {
         // Create
-        const response = await fetch(`${API_URL}/rewards`, {
+        const res = await fetch(`${API_URL}/rewards`, {
           method: 'POST',
           headers,
           body: JSON.stringify(payload)
-        }).then(r => r.json());
+        });
+        if (!res.ok) throw new Error(`Errore ${res.status}: ${await res.text()}`);
+        response = await res.json();
         setRewards([response, ...rewards]);
       }
 
