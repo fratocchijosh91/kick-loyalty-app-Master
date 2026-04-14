@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, Copy, Download, Trash2, Check, AlertCircle } from 'lucide-react';
+import { apiUrl } from '../lib/apiUrl';
 
 /**
  * TwoFactorSetup Component
@@ -25,7 +26,7 @@ export default function TwoFactorSetup({ onEnable, onDisable }) {
   const fetchStatus = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/2fa/status', {
+      const res = await fetch(apiUrl('2fa/status'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -41,7 +42,7 @@ export default function TwoFactorSetup({ onEnable, onDisable }) {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/2fa/setup', {
+      const res = await fetch(apiUrl('2fa/setup'), {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -65,7 +66,7 @@ export default function TwoFactorSetup({ onEnable, onDisable }) {
     
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/2fa/verify', {
+      const res = await fetch(apiUrl('2fa/verify'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -105,7 +106,7 @@ export default function TwoFactorSetup({ onEnable, onDisable }) {
       
       if (!disableCode) return;
 
-      const res = await fetch('/api/2fa/disable', {
+      const res = await fetch(apiUrl('2fa/disable'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

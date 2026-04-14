@@ -41,12 +41,12 @@ Devi avere:
 4. Versione: lascia default
 5. Copia la stringa che appare:
    ```
-   mongodb+srv://admin:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
+   mongodb+srv://<db_user>:<db_password>@<cluster>.mongodb.net/?retryWrites=true&w=majority
    ```
 6. **Sostituisci `<password>`** con la password che hai copiato prima
 7. Aggiungi `kick-loyalty` prima di `?`:
    ```
-   mongodb+srv://admin:password@cluster0.xxxxx.mongodb.net/kick-loyalty?retryWrites=true&w=majority
+   mongodb+srv://<db_user>:<db_password>@<cluster>.mongodb.net/kick-loyalty?retryWrites=true&w=majority
    ```
 8. **COPIA QUESTA STRINGA FINALE** → la userai in Railway
 

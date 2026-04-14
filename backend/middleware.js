@@ -9,8 +9,7 @@ const { User, Organization, TeamMember, SubscriptionPlan, UsageRecord } = requir
 const getJwtSecret = () => {
   const configuredSecret = process.env.JWT_SECRET;
   if (configuredSecret) return configuredSecret;
-  if (process.env.NODE_ENV === 'production') return null;
-  return 'dev_fallback_secret_change_me';
+  return null;
 };
 
 // ==================== AUTHENTICATION ====================

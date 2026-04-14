@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { apiUrl } from '../lib/apiUrl';
 import { ArrowRight, Zap } from 'lucide-react';
 import TwoFactorVerify from '../components/TwoFactorVerify';
 
@@ -52,7 +53,7 @@ const Login = () => {
   const handleKickLogin = async () => {
     try {
       // Get Kick OAuth URL
-      const response = await fetch('/api/auth/kick/url');
+      const response = await fetch(apiUrl('auth/kick/url'));
       const { url } = await response.json();
       window.location.href = url;
     } catch (err) {

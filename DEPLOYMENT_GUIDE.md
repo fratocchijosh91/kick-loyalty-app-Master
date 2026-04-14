@@ -123,7 +123,7 @@ Nel dashboard Railway:
 ```
 NODE_ENV=production
 PORT=5000
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/kick-loyalty
+MONGODB_URI=mongodb+srv://<db_user>:<db_password>@<cluster>.mongodb.net/kick-loyalty
 JWT_SECRET=your-production-secret-key-very-long
 KICK_API_ID=your_kick_api_id
 KICK_API_SECRET=your_kick_api_secret
@@ -200,14 +200,14 @@ Per il backend hai bisogno di MongoDB in produzione.
 3. Copia connection string:
 
 ```
-mongodb+srv://kick_user:PASSWORD@cluster.mongodb.net/kick-loyalty?retryWrites=true&w=majority
+mongodb+srv://<db_user>:<db_password>@<cluster>.mongodb.net/kick-loyalty?retryWrites=true&w=majority
 ```
 
 4. Sostituisci `PASSWORD` con la password dell'utente
 5. Configura nel backend:
 
 ```
-MONGODB_URI=mongodb+srv://kick_user:PASSWORD@cluster.mongodb.net/kick-loyalty?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<db_user>:<db_password>@<cluster>.mongodb.net/kick-loyalty?retryWrites=true&w=majority
 ```
 
 ### Step 5: Backup

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { apiUrl } from '../lib/apiUrl';
 
 const AuthContext = createContext();
 
@@ -32,7 +33,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const response = await axios.post('/api/auth/login', { username });
+      const response = await axios.post(apiUrl('auth/login'), { username });
 
       const { token: newToken, user: userData } = response.data;
 
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const response = await axios.post('/api/auth/kick/callback', { code, state });
+      const response = await axios.post(apiUrl('auth/kick/callback'), { code, state });
 
       const { token: newToken, user: userData } = response.data;
 

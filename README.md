@@ -1,8 +1,8 @@
 # 🎮 Kick Loyalty - Production-Ready SaaS Platform
 
-**Status**: ✅ Phase 1 Complete  
+**Status**: ✅ Production-ready core (active hardening)  
 **Version**: 2.0.0 (SaaS Multi-Tenant)  
-**Date**: April 8, 2026
+**Date**: April 14, 2026
 
 ---
 
@@ -146,12 +146,15 @@ MONGODB_URI=mongodb://localhost:27017/kick-loyalty
 
 # Authentication
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-KICK_API_ID=your_kick_api_id
-KICK_API_SECRET=your_kick_api_secret
+KICK_CLIENT_ID=your_kick_oauth_client_id
+KICK_CLIENT_SECRET=your_kick_oauth_client_secret
+KICK_REDIRECT_URI=http://localhost:3000/auth/callback
 
 # Payment
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+STRIPE_PRICE_ID=price_test_your_subscription_price_id
+STRIPE_WEBHOOK_SECRET=whsec_test_your_webhook_secret
 
 # Email (Gmail example)
 EMAIL_PROVIDER=gmail
@@ -160,6 +163,7 @@ EMAIL_PASSWORD=your_app_specific_password
 
 # Frontend
 FRONTEND_URL=http://localhost:5173
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 
 # SMS (Phase 2.6)
 SMS_PROVIDER=twilio
@@ -208,8 +212,8 @@ Frontend pronto su `http://localhost:5173` ✅
 # Salute check
 curl http://localhost:5000/api/health
 
-# Login (ottieni token)
-curl -X POST http://localhost:5000/api/auth/login \
+# OAuth callback (ottieni token JWT)
+curl -X POST http://localhost:5000/api/auth/kick/callback \
   -H "Content-Type: application/json" \
   -d '{
     "code": "AUTH_CODE_FROM_OAUTH",
@@ -281,7 +285,9 @@ npm run test:coverage
 
 ### Authentication
 ```
-POST   /auth/login                          - Kick OAuth + JWT
+GET    /auth/kick/url                       - Genera URL OAuth Kick (PKCE)
+POST   /auth/kick/callback                  - Completa OAuth e ritorna JWT
+POST   /auth/login                          - Fallback username login (solo dev/staging se abilitato)
 ```
 
 ### Organizations (Multi-tenant)
@@ -499,8 +505,8 @@ Setup: Leggi [backend/EMAIL_SETUP.md](backend/EMAIL_SETUP.md)
 | Plan | Prezzo | Rewards | Team | API/mese | Webhooks | Analytics | Support |
 |------|--------|---------|------|----------|----------|-----------|---------|
 | **Free** | €0 | 5 | 3 | 1K | ✗ | Base | Community |
-| **Pro** | €29 | 50 | 10 | 10K | ✓ | Avanzate | Email |
-| **Business** | €79 | 500 | 50 | 100K | ✓ | Avanzate | Priority |
+| **Pro** | €9.99 | 50 | 10 | 10K | ✓ | Avanzate | Email |
+| **Business** | €39.99 | 500 | 50 | 100K | ✓ | Avanzate | Priority |
 | **Enterprise** | Custom | ∞ | ∞ | ∞ | ✓ | Avanzate | 24/7 |
 
 Upgrade via Stripe checkout session.
@@ -540,7 +546,7 @@ railway up
 - `MONGODB_URI` (MongoDB Atlas)
 - `JWT_SECRET` (strong random key)
 - `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`
-- `KICK_API_ID`, `KICK_API_SECRET`
+- `KICK_CLIENT_ID`, `KICK_CLIENT_SECRET`, `KICK_REDIRECT_URI`
 - `EMAIL_PROVIDER`, `EMAIL_USER`, `EMAIL_PASSWORD` (or `SENDGRID_API_KEY`)
 - `FRONTEND_URL` (production domain)
 
@@ -577,32 +583,21 @@ Prometheus + Grafana con `prom-client`
 
 ---
 
-## 🎁 Features Roadmap
+## 🎁 Product Status
 
-### ✅ Phase 1 (Complete)
-- [x] Multi-tenant backend architecture
-- [x] SaaS billing system (Stripe)
-- [x] Full-featured dashboard (React)
-- [x] Email onboarding
-- [x] OpenAPI documentation
-- [x] Jest test suite
+### ✅ Available now
+- [x] Multi-tenant backend architecture + RBAC
+- [x] SaaS billing flows (Stripe Checkout + webhook handling)
+- [x] Dashboard app (rewards, team, analytics, billing)
+- [x] Security modules (2FA, audit trail, rate limit, JWT auth)
+- [x] Export and reporting modules (CSV/PDF + scheduled exports)
+- [x] CI smoke/release checks + documentation
 
-### ⏳ Phase 2 (Next)
-- [ ] Advanced analytics dashboard
-- [ ] Leaderboards + achievements
-- [ ] Redemption workflows
-- [ ] SMS/Telegram notifications
-- [ ] Custom webhooks dashboard
-- [ ] Two-factor authentication
-- [ ] Audit log
-
-### 🚀 Phase 3 (Future)
-- [ ] GraphQL API
-- [ ] WebSocket real-time updates
-- [ ] ML recommendations
-- [ ] A/B testing
-- [ ] International currencies
-- [ ] Mobile app (React Native)
+### 🧭 Next planned improvements
+- [ ] Customer-facing status page + incident runbooks
+- [ ] Extended observability (Sentry + structured logs by default)
+- [ ] Optional GraphQL read layer
+- [ ] Mobile-native app (React Native)
 
 ---
 
@@ -696,7 +691,7 @@ A: Usa Postman, curl, o la Swagger UI interactive su `/api-docs`.
 
 - [ ] MongoDB configurato e tested
 - [ ] Kick OAuth credentials settati
-- [ ] Stripe account con secret key
+- [ ] Stripe account con `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`
 - [ ] Email service configurato (Gmail/SendGrid)
 - [ ] Environment variables completed
 - [ ] Tutti i test passano (`npm test`)

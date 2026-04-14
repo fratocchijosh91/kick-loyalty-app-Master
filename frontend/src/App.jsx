@@ -16,8 +16,11 @@ import SMSPage from './pages/SMSPage';
 import ExportPage from './pages/ExportPage';
 import axios from 'axios';
 import './index.css';
+import { apiBase, apiUrl } from './lib/apiUrl';
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = apiBase();
+const usernameLoginAllowed =
+  import.meta.env.DEV || import.meta.env.VITE_ALLOW_USERNAME_LOGIN === 'true';
 
 async function askAI(messages) {
   const res = await fetch(`${API_URL}/ai/chat`, {
@@ -542,7 +545,14 @@ export default function App() {
       } catch (e) { setVPts(0); }
       setVRewards(rRes.data);
       setVIn(true);
-    } catch (e) { alert("Errore login spettatore"); }
+    } catch (e) {
+      const code = e.response?.data?.code;
+      alert(
+        code === 'USERNAME_LOGIN_DISABLED'
+          ? 'Modalità spettatore richiede ALLOW_USERNAME_LOGIN sul backend o flusso Kick dedicato.'
+          : 'Errore login spettatore'
+      );
+    }
     finally { setVLoading(false); }
   };
 
@@ -671,8 +681,12 @@ export default function App() {
               <div className="card">
                 <h2>Accedi alla Dashboard</h2>
                 <p>Gestisci rewards, punti e fidelizza la tua community</p>
-                <input className="field" placeholder="Username Kick (opzionale)" value={uname} onChange={e=>setUname(e.target.value)} onKeyPress={e=>e.key==="Enter"&&login()} />
-                <button className="btn-g" onClick={login} disabled={loading}>{loading?"⏳ Caricamento...":"🟢 Entra nella Dashboard"}</button>
+                {usernameLoginAllowed && (
+                  <input className="field" placeholder="Username Kick (solo dev / staging)" value={uname} onChange={e=>setUname(e.target.value)} onKeyPress={e=>e.key==="Enter"&&login()} />
+                )}
+                <button className="btn-g" onClick={login} disabled={loading}>
+                  {loading ? '⏳ Caricamento...' : usernameLoginAllowed ? '🟢 Entra (Kick OAuth se username vuoto)' : '🟢 Accedi con Kick'}
+                </button>
                 <button className="btn-ghost" onClick={()=>setPage("viewer")}>👀 Sei uno spettatore? Clicca qui</button>
                 <div className="login-chips">
                   {[["⭐","Rewards Personalizzati"],["📊","Analytics Real-time"],["🤖","AI Assistant"]].map(([i,l])=>(
@@ -945,7 +959,7 @@ export default function App() {
                     <span>
                       Per accumulare punti automaticamente, vai su <b>Kick Developer Portal</b> e aggiungi questo URL come webhook:<br/><br/>
                       <code style={{background:"var(--s2)",padding:"4px 8px",borderRadius:6,fontSize:12,wordBreak:"break-all"}}>
-                        {`${API_URL.replace('/api','')}/api/kick/webhook`}
+                        {apiUrl('kick/webhook')}
                       </code><br/><br/>
                       Ogni messaggio in chat = +1 pt · Follow = +50 pt · Sub = +200 pt
                     </span>

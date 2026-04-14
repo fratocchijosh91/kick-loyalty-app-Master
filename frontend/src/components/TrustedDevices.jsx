@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Smartphone, Monitor, Globe, Trash2, Lock, Unlock } from 'lucide-react';
+import { apiUrl } from '../lib/apiUrl';
 
 /**
  * TrustedDevices Component
@@ -20,7 +21,7 @@ export default function TrustedDevices() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/2fa/trusted-devices', {
+      const res = await fetch(apiUrl('2fa/trusted-devices'), {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -45,7 +46,7 @@ export default function TrustedDevices() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/2fa/trusted-devices/${deviceId}`, {
+      const res = await fetch(apiUrl(`2fa/trusted-devices/${deviceId}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

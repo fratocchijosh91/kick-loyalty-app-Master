@@ -10,15 +10,36 @@ const { v4: uuidv4 } = require('uuid');
 const { authenticateToken } = require('./middleware');
 const { User, TwoFactor } = require('./models');
 
-// Encryption helpers for secrets and backup codes
+const DEV_EPHEMERAL_KEY = process.env.NODE_ENV === 'production' ? null : crypto.randomBytes(32);
+
+const deriveKey = () => {
+  const raw = process.env.ENCRYPTION_KEY;
+  if (raw) return crypto.createHash('sha256').update(String(raw), 'utf8').digest();
+  if (DEV_EPHEMERAL_KEY) return DEV_EPHEMERAL_KEY;
+  throw new Error('ENCRYPTION_KEY is required in production for 2FA');
+};
+
+// AES-256-CBC with random IV per value.
 const encryptSecret = (secret) => {
-  const cipher = crypto.createCipher('aes-256-cbc', process.env.ENCRYPTION_KEY || 'fallback-key-change-me');
-  return cipher.update(secret, 'utf8', 'hex') + cipher.final('hex');
+  const key = deriveKey();
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  const enc = Buffer.concat([cipher.update(secret, 'utf8'), cipher.final()]);
+  return `v2:${iv.toString('hex')}:${enc.toString('hex')}`;
 };
 
 const decryptSecret = (encryptedSecret) => {
-  const decipher = crypto.createDecipher('aes-256-cbc', process.env.ENCRYPTION_KEY || 'fallback-key-change-me');
-  return decipher.update(encryptedSecret, 'hex', 'utf8') + decipher.final('utf8');
+  if (typeof encryptedSecret !== 'string') throw new Error('invalid_cipher');
+  if (encryptedSecret.startsWith('v2:')) {
+    const parts = encryptedSecret.split(':');
+    if (parts.length !== 3) throw new Error('invalid_cipher');
+    const key = deriveKey();
+    const iv = Buffer.from(parts[1], 'hex');
+    const data = Buffer.from(parts[2], 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    return Buffer.concat([decipher.update(data), decipher.final()]).toString('utf8');
+  }
+  throw new Error('legacy_cipher_not_supported');
 };
 
 /**

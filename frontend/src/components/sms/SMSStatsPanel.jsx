@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './sms.css';
+import { apiUrl } from '../../lib/apiUrl';
 
 const SMSStatsPanel = () => {
   const [stats, setStats] = useState(null);
@@ -14,7 +15,7 @@ const SMSStatsPanel = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/sms/stats?range=${dateRange}`);
+      const response = await fetch(apiUrl(`sms/stats?range=${dateRange}`));
       if (!response.ok) throw new Error('Failed to fetch statistics');
 
       const data = await response.json();

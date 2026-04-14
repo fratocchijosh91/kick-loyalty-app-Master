@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import { apiUrl } from '../lib/apiUrl';
 
 const OrganizationContext = createContext();
 
@@ -40,7 +41,7 @@ export const OrganizationProvider = ({ children }) => {
   const loadOrganizations = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/organizations');
+      const response = await axios.get(apiUrl('organizations'));
       setOrganizations(response.data.organizations || []);
     } catch (err) {
       setError(err.response?.data?.error || 'Errore nel caricamento organizzazioni');
@@ -52,7 +53,7 @@ export const OrganizationProvider = ({ children }) => {
   const loadOrganizationDetail = async (slug) => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/organizations/${slug}?organization=${slug}`);
+      const response = await axios.get(apiUrl(`organizations/${slug}?organization=${slug}`));
       setCurrentOrg(response.data);
       return response.data;
     } catch (err) {
@@ -76,7 +77,7 @@ export const OrganizationProvider = ({ children }) => {
   const createOrganization = async (name, description = '') => {
     try {
       setLoading(true);
-      const response = await axios.post('/api/organizations', { name, description });
+      const response = await axios.post(apiUrl('organizations'), { name, description });
       const newOrg = response.data.organization;
       setOrganizations([...organizations, newOrg]);
       await setCurrentOrgBySlug(newOrg.slug);
@@ -92,7 +93,7 @@ export const OrganizationProvider = ({ children }) => {
   const updateOrganization = async (slug, data) => {
     try {
       setLoading(true);
-      const response = await axios.patch(`/api/organizations/${slug}?organization=${slug}`, data);
+      const response = await axios.patch(apiUrl(`organizations/${slug}?organization=${slug}`), data);
       setCurrentOrg(response.data.organization);
       setOrganizations(
         organizations.map(org => org.slug === slug ? response.data.organization : org)
@@ -113,7 +114,7 @@ export const OrganizationProvider = ({ children }) => {
   // Team operations
   const loadTeamMembers = async (slug) => {
     try {
-      const response = await axios.get(`/api/organizations/${slug}/team?organization=${slug}`);
+      const response = await axios.get(apiUrl(`organizations/${slug}/team?organization=${slug}`));
       return response.data.members || [];
     } catch (err) {
       setError(err.response?.data?.error || 'Errore caricamento team');
@@ -124,7 +125,7 @@ export const OrganizationProvider = ({ children }) => {
   const inviteTeamMember = async (slug, email, role = 'viewer') => {
     try {
       const response = await axios.post(
-        `/api/organizations/${slug}/team/invite?organization=${slug}`,
+        apiUrl(`organizations/${slug}/team/invite?organization=${slug}`),
         { email, role }
       );
       return response.data;
@@ -137,7 +138,7 @@ export const OrganizationProvider = ({ children }) => {
   const updateTeamMember = async (slug, memberId, role) => {
     try {
       const response = await axios.patch(
-        `/api/organizations/${slug}/team/${memberId}?organization=${slug}`,
+        apiUrl(`organizations/${slug}/team/${memberId}?organization=${slug}`),
         { role }
       );
       return response.data;
@@ -150,7 +151,7 @@ export const OrganizationProvider = ({ children }) => {
   const removeTeamMember = async (slug, memberId) => {
     try {
       const response = await axios.delete(
-        `/api/organizations/${slug}/team/${memberId}?organization=${slug}`
+        apiUrl(`organizations/${slug}/team/${memberId}?organization=${slug}`)
       );
       return response.data;
     } catch (err) {
@@ -162,7 +163,7 @@ export const OrganizationProvider = ({ children }) => {
   // Rewards operations
   const loadRewards = async (slug) => {
     try {
-      const response = await axios.get(`/api/organizations/${slug}/rewards?organization=${slug}`);
+      const response = await axios.get(apiUrl(`organizations/${slug}/rewards?organization=${slug}`));
       return response.data || [];
     } catch (err) {
       setError(err.response?.data?.error || 'Errore caricamento rewards');
@@ -173,7 +174,7 @@ export const OrganizationProvider = ({ children }) => {
   const createReward = async (slug, reward) => {
     try {
       const response = await axios.post(
-        `/api/organizations/${slug}/rewards?organization=${slug}`,
+        apiUrl(`organizations/${slug}/rewards?organization=${slug}`),
         reward
       );
       return response.data;
@@ -187,7 +188,7 @@ export const OrganizationProvider = ({ children }) => {
   // Billing operations
   const loadBillingInfo = async (slug) => {
     try {
-      const response = await axios.get(`/api/organizations/${slug}/billing?organization=${slug}`);
+      const response = await axios.get(apiUrl(`organizations/${slug}/billing?organization=${slug}`));
       return response.data;
     } catch (err) {
       setError(err.response?.data?.error || 'Errore caricamento billing');
@@ -198,7 +199,7 @@ export const OrganizationProvider = ({ children }) => {
   const upgradePlan = async (slug, planSlug) => {
     try {
       const response = await axios.post(
-        `/api/organizations/${slug}/billing/upgrade?organization=${slug}`,
+        apiUrl(`organizations/${slug}/billing/upgrade?organization=${slug}`),
         { planSlug }
       );
       return response.data;
@@ -211,7 +212,7 @@ export const OrganizationProvider = ({ children }) => {
   const cancelSubscription = async (slug) => {
     try {
       const response = await axios.post(
-        `/api/organizations/${slug}/billing/cancel?organization=${slug}`
+        apiUrl(`organizations/${slug}/billing/cancel?organization=${slug}`)
       );
       await setCurrentOrgBySlug(slug);
       return response.data;

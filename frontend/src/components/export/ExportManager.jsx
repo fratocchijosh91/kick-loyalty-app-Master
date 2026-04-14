@@ -6,8 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Download, FileText, Calendar, Mail, Clock, Filter, Check, AlertCircle } from 'lucide-react';
 import './export.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import { apiUrl } from '../../lib/apiUrl';
 
 const ExportManager = ({ organizationId, userRole }) => {
   const [formats, setFormats] = useState({});
@@ -38,7 +37,7 @@ const ExportManager = ({ organizationId, userRole }) => {
   const fetchFormats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/exports/formats`, {
+      const res = await fetch(apiUrl('exports/formats'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -54,7 +53,7 @@ const ExportManager = ({ organizationId, userRole }) => {
   const fetchHistory = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/exports/history`, {
+      const res = await fetch(apiUrl('exports/history'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -79,11 +78,12 @@ const ExportManager = ({ organizationId, userRole }) => {
       if (filters.status) queryParams.append('status', filters.status);
       if (organizationId) queryParams.append('organizationId', organizationId);
 
-      const endpoint = format === 'pdf' 
-        ? `/api/exports/pdf/${type}?${queryParams}`
-        : `/api/exports/csv/${type}?${queryParams}`;
+      const endpoint =
+        format === 'pdf'
+          ? apiUrl(`exports/pdf/${type}?${queryParams}`)
+          : apiUrl(`exports/csv/${type}?${queryParams}`);
 
-      const res = await fetch(`${API_URL}${endpoint}`, {
+      const res = await fetch(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -114,7 +114,7 @@ const ExportManager = ({ organizationId, userRole }) => {
     
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/exports/scheduled`, {
+      const res = await fetch(apiUrl('exports/scheduled'), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -421,19 +421,19 @@ export const ExportButton = ({
   const handleClick = async () => {
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       const token = localStorage.getItem('token');
-      
+
       const queryParams = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value) queryParams.append(key, value);
       });
 
-      const endpoint = format === 'pdf' 
-        ? `/api/exports/pdf/${type}?${queryParams}`
-        : `/api/exports/csv/${type}?${queryParams}`;
+      const endpoint =
+        format === 'pdf'
+          ? apiUrl(`exports/pdf/${type}?${queryParams}`)
+          : apiUrl(`exports/csv/${type}?${queryParams}`);
 
-      const res = await fetch(`${API_URL}${endpoint}`, {
+      const res = await fetch(endpoint, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

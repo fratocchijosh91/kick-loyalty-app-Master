@@ -49,15 +49,33 @@ const app = express();
 // FIX: Trust proxy per Railway (risolve ERR_ERL_UNEXPECTED_X_FORWARDED_FOR)
 app.set('trust proxy', 1);
 
+const parseAllowedOrigins = () => {
+  const fromEnv = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const fromFrontend = (process.env.FRONTEND_URL || '').trim();
+  const devDefaults = ['http://localhost:3000', 'http://localhost:5173'];
+  return [...new Set([...fromEnv, fromFrontend, ...devDefaults].filter(Boolean))];
+};
+
+const allowedOrigins = parseAllowedOrigins();
+const isOriginAllowed = (origin) => !origin || allowedOrigins.includes(origin);
+
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: '*', methods: ['GET', 'POST'] }
+  cors: {
+    origin: (origin, callback) => {
+      if (isOriginAllowed(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST']
+  }
 });
 
 const PORT = process.env.PORT || 5000;
 const SERVER_STARTED_AT = Date.now();
-const JWT_SECRET =
-  process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev_fallback_secret_change_me');
+const JWT_SECRET = process.env.JWT_SECRET || null;
 const processedStripeEvents = new Map();
 
 const KICK_CLIENT_ID = process.env.KICK_CLIENT_ID;
@@ -200,8 +218,13 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
 
-// CORS: accetta qualsiasi origine per testing
-app.use(cors({ origin: '*', credentials: false }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (isOriginAllowed(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: false
+}));
 app.use(express.json({ limit: '10kb' }));
 
 // Rate limiting globale
@@ -454,14 +477,24 @@ app.post('/api/auth/kick/callback', authLimiter, async (req, res) => {
     });
   } catch (error) {
     console.error('OAuth error:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Errore OAuth Kick', details: error.response?.data });
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(500).json({ error: 'Errore OAuth Kick' });
+    }
+    return res.status(500).json({ error: 'Errore OAuth Kick', details: error.response?.data });
   }
 });
 
-// Login con username (fallback) - DEVE ESSERE PRIMA dei router protetti
+// Login con username (fallback) - disattivato in produzione salvo ALLOW_USERNAME_LOGIN=true
 app.post('/api/auth/login', authLimiter, [
   body('username').trim().isLength({ min: 1, max: 50 }).escape()
 ], validate, async (req, res) => {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_USERNAME_LOGIN !== 'true') {
+    return res.status(403).json({
+      error: 'Login con username disattivato. Usa Accedi con Kick.',
+      code: 'USERNAME_LOGIN_DISABLED'
+    });
+  }
+
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: 'Username richiesto' });
 

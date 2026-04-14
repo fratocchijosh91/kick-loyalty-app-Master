@@ -9,7 +9,14 @@ Checklist in ordine cronologico dopo ogni modifica rilevante.
 - `MONGODB_URI` — database produzione
 - `JWT_SECRET` — obbligatorio in produzione
 - `FRONTEND_URL` — URL Vercel dell’app
-- `STRIPE_*` — chiavi e webhook secret Stripe
+- **Stripe (pagamenti)**  
+  - `STRIPE_SECRET_KEY` — secret key (`sk_live_…` o `sk_test_…`) solo su Render  
+  - `STRIPE_WEBHOOK_SECRET` — signing secret dell’endpoint webhook (`whsec_…`)  
+  - `STRIPE_PRICE_ID` — ID prezzo Stripe usato da `POST /api/stripe/create-checkout` (crealo in Products → Prices)  
+  - `STRIPE_PUBLISHABLE_KEY` — opzionale sul backend; sul frontend imposta `VITE_STRIPE_PUBLISHABLE_KEY` (`pk_live_…` / `pk_test_…`) se usi Elements/Stripe.js  
+- `KICK_CLIENT_ID`, `KICK_CLIENT_SECRET`, `KICK_REDIRECT_URI` — OAuth Kick (redirect deve coincidere con la app registrata su Kick)
+- `ENCRYPTION_KEY` — obbligatoria in produzione se abiliti **2FA** (stringa lunga casuale)
+- `ALLOW_USERNAME_LOGIN=true` — **solo staging**: riattiva `POST /api/auth/login` con solo username; in produzione pubblica lascia **non** impostato
 - **Telemetry (consigliato)**  
   - `TELEMETRY_ADMIN_SECRET` — stringa lunga casuale; usata da GitHub Actions per `release:check`  
   - `TELEMETRY_ADMIN_USERNAMES` — lista Kick username (minuscolo, separati da virgola) che possono vedere `/api/telemetry/summary` con JWT dalla dashboard  
@@ -18,7 +25,9 @@ Checklist in ordine cronologico dopo ogni modifica rilevante.
 
 ### Vercel (frontend)
 
-- `VITE_API_URL` — es. `https://<service>.onrender.com/api`
+- `VITE_API_URL` — es. `https://<service>.onrender.com/api` (obbligatorio: tutte le chiamate API usano questo base URL)
+- `VITE_STRIPE_PUBLISHABLE_KEY` — opzionale, chiave pubblica Stripe se il checkout/UI la richiede
+- `VITE_ALLOW_USERNAME_LOGIN=true` — solo se in staging vuoi mostrare il campo login username nel bundle monolitico (`App.jsx`); non usare in produzione pubblica
 
 ## 2. GitHub Actions
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './sms.css';
+import { apiUrl } from '../../lib/apiUrl';
 
 const SMSNotificationList = () => {
   const [notifications, setNotifications] = useState([]);
@@ -29,7 +30,7 @@ const SMSNotificationList = () => {
         ...(filters.status && { status: filters.status })
       });
 
-      const response = await fetch(`/api/sms/notifications?${queryParams}`);
+      const response = await fetch(apiUrl(`sms/notifications?${queryParams}`));
       if (!response.ok) throw new Error('Failed to fetch notifications');
 
       const data = await response.json();

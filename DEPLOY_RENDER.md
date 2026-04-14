@@ -40,7 +40,7 @@ Clicca **"Advanced"** e aggiungi:
 | Variable | Valore |
 |----------|--------|
 | `NODE_ENV` | `production` |
-| `MONGODB_URI` | `mongodb+srv://Admin:Tz6VhujH9HOHr8jb@cluster0.yxta68l.mongodb.net/kick-loyalty?appName=Cluster0` |
+| `MONGODB_URI` | `mongodb+srv://<db_user>:<db_password>@<cluster>.mongodb.net/kick-loyalty?retryWrites=true&w=majority` |
 | `JWT_SECRET` | `E9oswezoiwCQ7qymon7PeTZQfVX2dFgaaMpvERjQsAo=` (o genera nuovo) |
 | `FRONTEND_URL` | `https://placeholder.vercel.app` (aggiorneremo dopo) |
 | `EMAIL_PROVIDER` | `gmail` |

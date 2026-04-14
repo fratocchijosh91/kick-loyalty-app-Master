@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
+import { apiUrl } from '../lib/apiUrl';
 
 /**
  * AuditPage Component
@@ -68,7 +69,7 @@ export default function AuditPage() {
         limit: 25
       });
 
-      const res = await fetch(`/api/audit/logs?${params}`, {
+      const res = await fetch(apiUrl(`audit/logs?${params}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -89,7 +90,7 @@ export default function AuditPage() {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/audit/timeline?daysBack=30', {
+      const res = await fetch(apiUrl('audit/timeline?daysBack=30'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -109,7 +110,7 @@ export default function AuditPage() {
     setError('');
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/audit/stats?daysBack=30', {
+      const res = await fetch(apiUrl('audit/stats?daysBack=30'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -132,7 +133,19 @@ export default function AuditPage() {
         format
       });
 
-      window.location.href = `/api/audit/export?${params}&Authorization=Bearer ${token}`;
+      const response = await fetch(apiUrl(`audit/export?${params}`), {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Export failed');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audit-export.${format === 'json' ? 'json' : 'csv'}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (err) {
       setError('Failed to export logs');
     }

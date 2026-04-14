@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Award, Target, TrendingUp, Zap, Star } from 'lucide-react';
 import { useOrganization } from '../contexts/OrganizationContext';
+import { apiUrl } from '../lib/apiUrl';
 
 export default function LeaderboardsPage() {
   const { org, orgId } = useOrganization();
@@ -36,26 +37,26 @@ export default function LeaderboardsPage() {
       const headers = { Authorization: `Bearer ${token}` };
       
       // Fetch leaderboard
-      const leaderboardRes = await fetch(`/api/leaderboards?period=${period}`, { headers });
+      const leaderboardRes = await fetch(apiUrl(`leaderboards?period=${period}`), { headers });
       const leaderboardData = await leaderboardRes.json();
       setLeaderboard(leaderboardData);
       
       // Fetch achievements
-      const achievementsRes = await fetch(`/api/achievements`, { headers });
+      const achievementsRes = await fetch(apiUrl('achievements'), { headers });
       const achievementsData = await achievementsRes.json();
       setAchievements(achievementsData);
       
       // If user is logged in, fetch their personal data
       if (currentUser) {
-        const rankRes = await fetch(`/api/leaderboards/rank/${currentUser}`, { headers });
+        const rankRes = await fetch(apiUrl(`leaderboards/rank/${currentUser}`), { headers });
         const rankData = await rankRes.json();
         setUserRank(rankData);
         
-        const userAchievementsRes = await fetch(`/api/achievements/${currentUser}`, { headers });
+        const userAchievementsRes = await fetch(apiUrl(`achievements/${currentUser}`), { headers });
         const userAchievementsData = await userAchievementsRes.json();
         setUserAchievements(userAchievementsData);
         
-        const progressRes = await fetch(`/api/achievements/${currentUser}/progress`, { headers });
+        const progressRes = await fetch(apiUrl(`achievements/${currentUser}/progress`), { headers });
         const progressData = await progressRes.json();
         setAchievementProgress(progressData);
       }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, AlertCircle } from 'lucide-react';
+import { apiUrl } from '../lib/apiUrl';
 
 /**
  * TwoFactorVerify Component
@@ -21,7 +22,7 @@ export default function TwoFactorVerify({ onVerifySuccess, onCancel }) {
     setError(null);
 
     try {
-      const response = await fetch('/api/2fa/verify-code', {
+      const response = await fetch(apiUrl('2fa/verify-code'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

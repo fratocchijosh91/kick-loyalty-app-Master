@@ -3,8 +3,9 @@ import DashboardLayout from '../components/Layout/DashboardLayout';
 import { useOrganization } from '../contexts/OrganizationContext';
 import axios from 'axios';
 import { Plus, Edit2, Trash2, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { apiBase } from '../lib/apiUrl';
 
-const API_URL = 'https://kick-loyalty-app-master.onrender.com/api';
+const API_URL = apiBase();
 
 const RewardsPage = () => {
   const { currentOrg } = useOrganization();

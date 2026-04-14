@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Download, RefreshCw, Calendar } from 'lucide-react';
 import { useOrganization } from '../contexts/OrganizationContext';
+import { apiUrl } from '../lib/apiUrl';
 
 export default function AnalyticsPage() {
   const { org, orgId } = useOrganization();
@@ -27,13 +28,13 @@ export default function AnalyticsPage() {
       const headers = { Authorization: `Bearer ${token}` };
       
       // Fetch overview
-      const overviewRes = await fetch(`/api/analytics/overview`, { headers });
+      const overviewRes = await fetch(apiUrl('analytics/overview'), { headers });
       const overviewData = await overviewRes.json();
       setOverview(overviewData);
       
       // Fetch engagement
       const engagementRes = await fetch(
-        `/api/analytics/engagement?granularity=${granularity}&days=30`,
+        apiUrl(`analytics/engagement?granularity=${granularity}&days=30`),
         { headers }
       );
       const engagementData = await engagementRes.json();
@@ -41,14 +42,14 @@ export default function AnalyticsPage() {
       
       // Fetch rewards
       const rewardsRes = await fetch(
-        `/api/analytics/rewards?startDate=${dateRange.start}&endDate=${dateRange.end}`,
+        apiUrl(`analytics/rewards?startDate=${dateRange.start}&endDate=${dateRange.end}`),
         { headers }
       );
       const rewardsData = await rewardsRes.json();
       setRewards(rewardsData);
       
       // Fetch health
-      const healthRes = await fetch(`/api/analytics/health`, { headers });
+      const healthRes = await fetch(apiUrl('analytics/health'), { headers });
       const healthData = await healthRes.json();
       setHealth(healthData);
     } catch (error) {
@@ -66,7 +67,7 @@ export default function AnalyticsPage() {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `/api/analytics/export?format=csv&type=${type}`,
+        apiUrl(`analytics/export?format=csv&type=${type}`),
         {
           headers: { Authorization: `Bearer ${token}` }
         }
