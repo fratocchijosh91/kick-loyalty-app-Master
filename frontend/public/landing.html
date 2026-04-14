@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KickLoyalty — Rewards System per Streamer Kick</title>
+<!-- v2.1 -->
 <meta name="description" content="Sistema di rewards e fidelizzazione per streamer Kick. Crea rewards personalizzati, gestisci punti fedeltà e mostra tutto in live con il widget OBS.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -722,6 +723,50 @@
     color: var(--muted);
   }
 
+  /* ===== FAQ ===== */
+  .faq-item {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0;
+  }
+  .faq-item:last-child { border-bottom: none; }
+
+  .faq-item summary {
+    padding: 22px 28px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after {
+    content: '+';
+    font-size: 22px;
+    color: var(--green);
+    font-weight: 300;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-left: 16px;
+    transition: transform 0.2s;
+  }
+  .faq-item[open] summary::after {
+    content: '−';
+  }
+  .faq-item summary:hover { background: #161616; }
+  .faq-item p {
+    padding: 0 28px 22px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
   /* ===== ANIMATIONS ===== */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
@@ -966,6 +1011,40 @@
         <p class="testimonial-text" style="font-style:normal">Incolla il link spettatori nella bio del tuo canale Kick. I fan si registrano, accumulano punti e riscattano rewards in autonomia.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq" style="max-width:800px">
+  <div class="reveal" style="text-align:center">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">DOMANDE<br>FREQUENTI</h2>
+  </div>
+  <div class="reveal" style="margin-top:48px;display:flex;flex-direction:column;gap:2px;border:1px solid var(--border);border-radius:16px;overflow:hidden">
+    <details class="faq-item">
+      <summary>È davvero gratis per iniziare?</summary>
+      <p>Sì. Il piano Starter è gratuito per sempre: fino a 5 rewards, dashboard analytics e login Kick OAuth inclusi. Nessuna carta di credito richiesta.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Come guadagnano punti i miei spettatori?</summary>
+      <p>I punti vengono assegnati tramite webhook Kick: ogni messaggio in chat, follow e subscription generano punti automaticamente. Puoi configurare i moltiplicatori dalla dashboard.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Funziona su OBS e Streamlabs?</summary>
+      <p>Sì. Il widget si aggiunge come Browser Source in OBS Studio, OBS Mobile e Streamlabs. Si aggiorna in tempo reale senza ricaricare la scena.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Posso cancellare in qualsiasi momento?</summary>
+      <p>Sì. Puoi cancellare il piano Pro in qualsiasi momento dalla dashboard Billing. Non ci sono vincoli o penali. Torni al piano Starter automaticamente.</p>
+    </details>
+    <details class="faq-item">
+      <summary>I dati dei miei spettatori sono al sicuro?</summary>
+      <p>Sì. Utilizziamo autenticazione OAuth 2.1 ufficiale Kick, connessioni HTTPS, database cifrato e non vendiamo dati a terzi. Leggi la nostra <a href="/privacy.html" style="color:var(--green)">Privacy Policy</a>.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Posso usare KickLoyalty se ho pochi spettatori?</summary>
+      <p>Assolutamente sì. KickLoyalty è pensato anche per chi inizia — il piano gratuito non ha requisiti minimi di follower o visualizzazioni.</p>
+    </details>
   </div>
 </section>
 
