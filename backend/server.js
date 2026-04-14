@@ -80,8 +80,8 @@ const processedStripeEvents = new Map();
 
 const KICK_CLIENT_ID = process.env.KICK_CLIENT_ID;
 const KICK_CLIENT_SECRET = process.env.KICK_CLIENT_SECRET;
-const KICK_REDIRECT_URI = process.env.KICK_REDIRECT_URI || 'https://kick-loyalty-app.vercel.app/auth/callback';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://kick-loyalty-app.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://kick-loyalty-app-master.vercel.app';
+const KICK_REDIRECT_URI = process.env.KICK_REDIRECT_URI || `${FRONTEND_URL}/auth/callback`;
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID;

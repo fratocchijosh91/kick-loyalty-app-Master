@@ -705,7 +705,7 @@ export default function App() {
         {page === "app" && user && (
           <>
             <nav className="navbar">
-              <a className="nav-logo" href="https://kick-loyalty-app.vercel.app/landing.html">
+              <a className="nav-logo" href="/landing.html">
                 <div className="nav-logo-mark">🎮</div>
                 <span>Kick Loyalty</span>
               </a>

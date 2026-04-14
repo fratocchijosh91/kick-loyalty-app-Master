@@ -800,13 +800,13 @@
 
 <!-- NAV -->
 <nav>
- <a href="https://kick-loyalty-app.vercel.app" class="nav-logo">🎮 KickLoyalty</a>
+ <a href="/landing.html" class="nav-logo">🎮 KickLoyalty</a>
   <ul class="nav-links">
     <li><a href="#features">Features</a></li>
     <li><a href="#obs">OBS Widget</a></li>
     <li><a href="#pricing">Prezzi</a></li>
   </ul>
-  <a href="https://kick-loyalty-app.vercel.app" class="nav-cta" target="_blank">Inizia Gratis →</a>
+  <a href="/" class="nav-cta" target="_blank">Inizia Gratis →</a>
 </nav>
 
 <!-- HERO -->
@@ -822,7 +822,7 @@
       Crea rewards personalizzati, gestisci i punti fedeltà dei tuoi spettatori e mostrali in live con il widget OBS. Gratis.
     </p>
     <div class="hero-ctas">
-      <a href="https://kick-loyalty-app.vercel.app" class="btn-primary" target="_blank">🚀 Inizia Gratis</a>
+      <a href="/" class="btn-primary" target="_blank">🚀 Inizia Gratis</a>
       <a href="#features" class="btn-secondary">Scopri di più</a>
     </div>
   </div>
@@ -898,7 +898,7 @@
       <p class="section-sub" style="margin-bottom:32px">
         Aggiungi il widget come Browser Source in OBS. Si aggiorna in tempo reale durante la live — notifiche animate, stats e top community.
       </p>
-      <a href="https://kick-loyalty-app.vercel.app" class="btn-primary" target="_blank">Ottieni il Widget →</a>
+      <a href="/" class="btn-primary" target="_blank">Ottieni il Widget →</a>
     </div>
     <div class="obs-preview reveal">
       <div class="obs-bar">
@@ -955,7 +955,7 @@
         <li>Widget OBS base</li>
         <li>Login con Kick OAuth</li>
       </ul>
-      <a href="https://kick-loyalty-app.vercel.app" class="plan-btn" target="_blank">Inizia Gratis</a>
+      <a href="/" class="plan-btn" target="_blank">Inizia Gratis</a>
     </div>
     <div class="pricing-card featured">
       <div class="featured-badge">🔥 Più Popolare</div>
@@ -969,7 +969,7 @@
         <li>Widget OBS Pro</li>
         <li>Priority support</li>
       </ul>
-      <a href="https://kick-loyalty-app.vercel.app" class="plan-btn featured-btn" target="_blank">💳 Upgrade a Pro</a>
+      <a href="/" class="plan-btn featured-btn" target="_blank">💳 Upgrade a Pro</a>
     </div>
     <div class="pricing-card">
       <div class="plan-name">⚡ Enterprise</div>
@@ -1053,7 +1053,7 @@
   <div class="reveal">
     <h2>PRONTO A<br><span>CRESCERE?</span></h2>
     <p>Unisciti agli streamer Kick che usano KickLoyalty per fidelizzare la community.</p>
-    <a href="https://kick-loyalty-app.vercel.app" class="btn-primary" target="_blank" style="font-size:18px;padding:20px 48px">
+    <a href="/" class="btn-primary" target="_blank" style="font-size:18px;padding:20px 48px">
       🚀 Inizia Gratis Adesso
     </a>
   </div>
@@ -1065,7 +1065,7 @@
   <ul class="footer-links">
     <li><a href="#features">Features</a></li>
     <li><a href="#pricing">Prezzi</a></li>
-    <li><a href="https://kick-loyalty-app.vercel.app">App</a></li>
+    <li><a href="/">App</a></li>
     <li><a href="/privacy.html">Privacy</a></li>
     <li><a href="/terms.html">Termini</a></li>
     <li><a href="/support.html">Supporto</a></li>
@@ -1123,7 +1123,7 @@
     };
   }
 
-  document.querySelectorAll('a[href*="kick-loyalty-app.vercel.app"]').forEach((el) => {
+  document.querySelectorAll('a[href="/"]').forEach((el) => {
     el.addEventListener('click', () => trackLandingEvent('cta_clicked', { target: el.getAttribute('href') }));
   });
 
