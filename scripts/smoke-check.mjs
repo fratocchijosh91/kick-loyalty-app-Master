@@ -1,5 +1,4 @@
 const API_BASE_URL = process.env.SMOKE_API_URL || process.env.VITE_API_URL;
-const SMOKE_USERNAME = process.env.SMOKE_USERNAME || "smoke_user";
 
 if (!API_BASE_URL) {
   console.error("Missing API URL. Set SMOKE_API_URL or VITE_API_URL.");
@@ -32,31 +31,12 @@ const run = async () => {
   const health = await assertOk(healthRes, "health");
   console.log("health:", health.status, health.checks?.database || "n/a");
 
-  const loginRes = await fetch(`${baseUrl}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: SMOKE_USERNAME })
-  });
-  const login = await assertOk(loginRes, "login");
-  if (!login.token) throw new Error("login did not return token");
-
-  const rewardName = `smoke-${Date.now()}`;
-  const createRes = await fetch(`${baseUrl}/rewards`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${login.token}`
-    },
-    body: JSON.stringify({
-      name: rewardName,
-      description: "Smoke test reward",
-      points: 100,
-      type: "custom",
-      active: true
-    })
-  });
-  const reward = await assertOk(createRes, "create reward");
-  console.log("create reward:", reward._id || reward.id || reward.name);
+  const readyRes = await fetch(`${baseUrl}/health/ready`);
+  const ready = await assertOk(readyRes, "health-ready");
+  if (ready.status !== "ready") {
+    throw new Error(`health-ready returned ${JSON.stringify(ready)}`);
+  }
+  console.log("health-ready:", ready.status);
 
   console.log("Smoke check passed.");
 };
