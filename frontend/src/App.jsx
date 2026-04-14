@@ -535,10 +535,9 @@ export default function App() {
     setVLoading(true);
     try {
       const [uRes, rRes] = await Promise.all([
-        axios.post(`${API_URL}/auth/login`, { username: vU.trim() }),
+        axios.post(`${API_URL}/auth/viewer-login`, { username: vU.trim() }),
         axios.get(`${API_URL}/rewards`)
       ]);
-      // Get viewer points
       try {
         const ptRes = await axios.get(`${API_URL}/viewer-points/${vU.trim()}/${vS.trim()}`);
         setVPts(ptRes.data.points || 0);
@@ -546,12 +545,7 @@ export default function App() {
       setVRewards(rRes.data);
       setVIn(true);
     } catch (e) {
-      const code = e.response?.data?.code;
-      alert(
-        code === 'USERNAME_LOGIN_DISABLED'
-          ? 'Modalità spettatore richiede ALLOW_USERNAME_LOGIN sul backend o flusso Kick dedicato.'
-          : 'Errore login spettatore'
-      );
+      alert('Errore login spettatore. Riprova.');
     }
     finally { setVLoading(false); }
   };

@@ -484,6 +484,53 @@ app.post('/api/auth/kick/callback', authLimiter, async (req, res) => {
   }
 });
 
+// Viewer login — solo per spettatori (scope limitato, sempre attivo)
+app.post('/api/auth/viewer-login', authLimiter, [
+  body('username').trim().isLength({ min: 1, max: 50 }).escape()
+], validate, async (req, res) => {
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: 'Username richiesto' });
+
+  if (!JWT_SECRET) {
+    return res.status(500).json({ error: 'JWT non configurato sul server' });
+  }
+
+  try {
+    let user;
+    if (mongoose.connection.readyState === 1) {
+      user = await User.findOneAndUpdate(
+        { kickUsername: username.toLowerCase() },
+        {
+          kickUsername: username.toLowerCase(),
+          kickDisplayName: username,
+          lastLogin: new Date()
+        },
+        { upsert: true, new: true }
+      );
+    } else {
+      user = { _id: 'mock_' + username, kickUsername: username.toLowerCase(), kickDisplayName: username };
+    }
+
+    const jwtLib = require('jsonwebtoken');
+    const token = jwtLib.sign(
+      { id: user._id, username: user.kickUsername, role: 'viewer' },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        username: user.kickUsername,
+        displayName: user.kickDisplayName || username
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Errore durante il login spettatore' });
+  }
+});
+
 // Login con username (fallback) - disattivato in produzione salvo ALLOW_USERNAME_LOGIN=true
 app.post('/api/auth/login', authLimiter, [
   body('username').trim().isLength({ min: 1, max: 50 }).escape()
