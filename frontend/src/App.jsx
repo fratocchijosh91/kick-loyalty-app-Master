@@ -21,6 +21,7 @@ import { apiBase, apiUrl } from './lib/apiUrl';
 const API_URL = apiBase();
 const usernameLoginAllowed =
   import.meta.env.DEV || import.meta.env.VITE_ALLOW_USERNAME_LOGIN === 'true';
+const PRO_PRICE_LABEL = "€9.99";
 
 async function askAI(messages) {
   const res = await fetch(`${API_URL}/ai/chat`, {
@@ -740,7 +741,7 @@ export default function App() {
                       <div className="upgrade-bar">
                         <div className="upgrade-bar-text">
                           <strong>🚀 Passa a KickLoyalty Pro</strong>
-                          <span>Rewards illimitati · Analytics avanzate · €19/mese</span>
+                          <span>{`Rewards illimitati · Analytics avanzate · ${PRO_PRICE_LABEL}/mese`}</span>
                         </div>
                         <button className="btn-up" onClick={handleUpgrade} disabled={upgradeLoading}>
                           {upgradeLoading?"⏳...":"💎 Upgrade"}
@@ -910,7 +911,7 @@ export default function App() {
                     <div className="pricing-grid">
                       {[
                         {ico:"🌱",name:"Starter",amt:"GRATIS",per:"",cls:"gh",feats:["Fino a 100 viewers","5 rewards personalizzati","Dashboard analytics","Widget OBS base","Login con Kick OAuth"]},
-                        {ico:"🚀",name:"Pro",amt:"€19",per:"/mese",cls:"sl",feat:true,feats:["Viewers illimitati","Rewards illimitati","Analytics avanzate","Widget OBS Pro","Priority support"]},
+                        {ico:"🚀",name:"Pro",amt:PRO_PRICE_LABEL,per:"/mese",cls:"sl",feat:true,feats:["Viewers illimitati","Rewards illimitati","Analytics avanzate","Widget OBS Pro","Priority support"]},
                         {ico:"⚡",name:"Enterprise",amt:"Custom",per:"",cls:"gh",feats:["Tutto del Pro","White-label","API dedicate","Onboarding personale","24/7 support"]},
                       ].map((p,i)=>(
                         <div className={`pcard ${p.feat?"feat":""}`} key={p.name} style={{animationDelay:`${i*0.06}s`,animation:"fadeUp 0.4s ease both"}}>
